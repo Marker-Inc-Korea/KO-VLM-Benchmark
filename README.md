@@ -1,5 +1,14 @@
 # KO-VQA-Benchmark
-시각화자료질의응답 데이터셋을 기반으로 만든 VLM 벤치마크 데이터셋
+시각화자료질의응답 데이터셋을 기반으로 만든 한국어 VLM 벤치마크 데이터셋 **(KO-VQA)**
+
+```
+pytorch == 2.3.0 with cuda 12.1
+transformers == 4.51.3
+tokenizers == 0.21.1
+qwen-vl-utils[decord]==0.0.8
+accelerate == 1.6.0
+flash-attn == 2.7.4.post1
+```
 
 # Contents
 1. Introduction😋
@@ -50,10 +59,6 @@ KO-VQA 데이터셋의 일부 subset을 `/data/Sampled_시각화_자료_질의�
 (답변 전처리 방법 설명)
 
 (코드 실행 방법 설명)
-```
-# 코드 환경
-```
-
 ```bash
 # Evaluation code
 
