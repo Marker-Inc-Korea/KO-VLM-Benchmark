@@ -56,17 +56,46 @@ KO-VQA 데이터셋의 일부 subset을 `/data/Sampled_시각화_자료_질의�
 > 전체 문항에 대해서는, 데이터 유출 및 데이터 저작권 문제로 인해 공유가 어렵습니다🤫
 
 # How to evaluation🦾
-(답변 전처리 방법 설명)
-
-(코드 실행 방법 설명)
+시각화자료질의응답 Ko-VQA 데이터셋은 질문에 대한 답변을 문서에 기반하여 VLM이 얼마나 잘 답변하는지 알아보는 것에 중점을 둔 데이터셋입니다.  
+따라서, 답변에서 제공된 `숫자 표기 단위`, `답변 표현 방법` 등등에 대해서 post-processing을 통해 VLM의 답변과 실제 answer를 비교하여 정확도를 측정합니다.  
+---
+저희는 `정규표현식`을 통해 VLM Output과 Answer에서 `숫자+단위`를 추출하고, 뽑혀진 두 개의 단어들이 정확히 일치한다면 정답이라고 평가합니다.  
+아래는 정답 예시입니다!👇👇
+```
+Question: <image> 2020년 공공기관 투자목표는 몇 조 원이니?
+VLM Output: 2020년 공공기관 투자목표는 61.5조 원입니다.
+Answer: 61.5조 원입니다.
+```
+이때 각각 VLM output과 Answer에서는 `61.5조`가 추출되어 정답으로 평가됩니다!  
+아래는 오답 예시입니다!👇👇
+```
+Question: 2017년도 국가보훈처의 순국선열 애국지사사업기금 지출액은 얼마야?
+Output: 2017년도 국가보훈처의 순국선열 애국지사사업기금 지출액은 19,305백만 원입니다.
+Answer: 19,925백만 원이 순국선열 애국지사사업기금의 지출액입니다.
+```
+이때 각각 VLM output에서는 `[2017년, 19,305백]`이 추출되고, Answer에서는 `19,925백`이 추출되어 오답으로 간주됩니다.  
+---
+평가 코드는 아래 심플하게 돌려볼 수 있습니다!  
 ```bash
 # Evaluation code
-
+sh eval.sh
 ```
-(option 설명)
-
+> You need to set `base_model` and `huggingfacce_token`.
+  
 # Results🌟
-(TO-DO)
-
+| Model | 시각화자료-Ko-VQA (Acc.) |
+| ------------- | ------------- |
+| `Qwen2.5-VL-32B-Instruct` | **60.48** |
+| `Qwen2.5-VL-7B-Instruct` | 53.27 | 
+| `VARCO-VISION-14B-HF` | 43.67 |
+| `Gukbap-Ovis2-16B` | 34.80 | 
+| `Ovis2-16B` | 34.20 |
+| `gemma-3-27b-it` | 34.20 |
+| `Gukbap-Gemma3-27B-VL` | 33.60 | 
+| `Ovis2-34B` | 32.50 |
+| `Gukbap-Ovis2-34B` | 31.93 | 
+| `gemma-3-12b-it` | 28.73 |
+| `Bllossom-AICA-5B` | 20.67 | 
+   
 # References
 - (AIHub - 시각화질의응답 데이터셋][https://www.aihub.or.kr/aihubdata/data/view.do?currMenu=115&topMenu=100&dataSetSn=71812]  
