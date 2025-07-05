@@ -52,7 +52,7 @@ Instruction: <image> 2020년 공공기관 투자목표는 몇 조 원이니?
 Answer: 밭농사의 기계화율은 21.9% 증가합니다.
 ```
   
-KO-VQA 데이터셋의 일부 subset을 `/data/Sampled_시각화_자료_질의응답_데이터_benchmark_subset.csv`에서 확인하실 수 있습니다.🌞
+KO-VQA 데이터셋의 일부 [subset](https://github.com/Marker-Inc-Korea/KO-VQA-Benchmark/blob/main/data/Sampled_%EC%8B%9C%EA%B0%81%ED%99%94_%EC%9E%90%EB%A3%8C_%EC%A7%88%EC%9D%98%EC%9D%91%EB%8B%B5_%EB%8D%B0%EC%9D%B4%ED%84%B0_benchmark_subset.csv)을 `/data/Sampled_시각화_자료_질의응답_데이터_benchmark_subset.csv`에서 확인하실 수 있습니다.🌞
 > 전체 문항에 대해서는, 데이터 유출 및 데이터 저작권 문제로 인해 공유가 어렵습니다🤫
 
 # How to evaluation🦾
