@@ -16,6 +16,7 @@ flash-attn == 2.7.4.post1
 3. [How to evaluate](https://github.com/Marker-Inc-Korea/KO-VQA-Benchmark?tab=readme-ov-file#how-to-evaluate)🦾
 4. [Results](https://github.com/Marker-Inc-Korea/KO-VQA-Benchmark?tab=readme-ov-file#results)🌟
 5. [References](https://github.com/Marker-Inc-Korea/KO-VQA-Benchmark?tab=readme-ov-file#references)
+6. [Acknowledgement](https://github.com/Marker-Inc-Korea/KO-VQA-Benchmark?tab=readme-ov-file#acknowledgement)
 
 # Introduction😋
 AIhub에서 제공한, 시각화질의응답 데이터셋은 `문서 내 그림, 표, 그래프, 다이어그램(인포그래픽 포함) 등 시각화 자료`에 대한 이해 기반 질의응답 데이터로 시각 문서를 이해하고 문서의 내용에 관련된 질문에 대한 응답을 수행할 수 있는 데이터입니다.  
@@ -103,3 +104,6 @@ sh eval.sh
    
 # References
 - [AIHub - 시각화질의응답 데이터셋](https://www.aihub.or.kr/aihubdata/data/view.do?currMenu=115&topMenu=100&dataSetSn=71812)
+
+# Acknowledgement 
+This research was supported by the Korea Institute for Advancement of Technology (KIAT) grant funded by the Korean Government (MOTIE) (RS-2024-00416131, HRD Program for Industrial Innovation)
