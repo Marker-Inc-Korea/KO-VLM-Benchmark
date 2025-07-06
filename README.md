@@ -13,7 +13,7 @@ flash-attn == 2.7.4.post1
 # Contents
 1. [Introduction](https://github.com/Marker-Inc-Korea/KO-VQA-Benchmark?tab=readme-ov-file#introduction)😋
 2. [How to make datasets](https://github.com/Marker-Inc-Korea/KO-VQA-Benchmark?tab=readme-ov-file#how-to-make-datasets)👽
-3. [How to evaluation](https://github.com/Marker-Inc-Korea/KO-VQA-Benchmark?tab=readme-ov-file#how-to-evaluation)🦾
+3. [How to evaluate](https://github.com/Marker-Inc-Korea/KO-VQA-Benchmark?tab=readme-ov-file#how-to-evaluate)🦾
 4. [Results](https://github.com/Marker-Inc-Korea/KO-VQA-Benchmark?tab=readme-ov-file#results)🌟
 5. [References](https://github.com/Marker-Inc-Korea/KO-VQA-Benchmark?tab=readme-ov-file#references)
 
@@ -55,7 +55,7 @@ Answer: 밭농사의 기계화율은 21.9% 증가합니다.
 KO-VQA 데이터셋의 일부 [subset](https://github.com/Marker-Inc-Korea/KO-VQA-Benchmark/blob/main/data/Sampled_%EC%8B%9C%EA%B0%81%ED%99%94_%EC%9E%90%EB%A3%8C_%EC%A7%88%EC%9D%98%EC%9D%91%EB%8B%B5_%EB%8D%B0%EC%9D%B4%ED%84%B0_benchmark_subset.csv)을 `/data/Sampled_시각화_자료_질의응답_데이터_benchmark_subset.csv`에서 확인하실 수 있습니다.🌞
 > 전체 문항에 대해서는, 데이터 유출 및 데이터 저작권 문제로 인해 공유가 어렵습니다🤫
 
-# How to evaluation🦾
+# How to evaluate🦾
 시각화자료질의응답 Ko-VQA 데이터셋은 질문에 대한 답변을 문서에 기반하여 VLM이 얼마나 잘 답변하는지 알아보는 것에 중점을 둔 데이터셋입니다.  
 따라서, 답변에서 제공된 `숫자 표기 단위`, `답변 표현 방법` 등등에 대해서 post-processing을 통해 VLM의 답변과 실제 answer를 비교하여 정확도를 측정합니다.  
 
