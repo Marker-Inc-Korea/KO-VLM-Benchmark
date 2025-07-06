@@ -84,6 +84,7 @@ def main(
             torch_dtype="float16",
             device_map=device_map,
             #cache_dir='/home/kyujin/share',
+            attn_implementation="flash_attention_2"
         )
 
         processor = AutoProcessor.from_pretrained(base_model, device_map=device_map)
