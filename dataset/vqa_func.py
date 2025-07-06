@@ -526,7 +526,7 @@ def VQA_19_Eval(eval_dataset,
             prompt = text_tokenizer.apply_chat_template(query, add_generation_prompt=True)
             
             EOS_TOKEN = "<|im_end|>"
-            inputs = text_tokenizer(images=image, text=prompt, return_tensors='pt').to(torch.float16)
+            inputs = text_tokenizer(images=image, text=prompt, return_tensors='pt').to(torch.float16).to(model.device)
             
             ## generation
             with torch.inference_mode():
