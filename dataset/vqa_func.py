@@ -179,7 +179,7 @@ def VQA_19_Eval(eval_dataset,
 
                     try:
                         if ('.' in pred_value) and (int(float(pred_value)) == float(pred_value)):
-                            pred_value = int(pred_value)
+                            pred_value = int(float(pred_value))
                         else:
                             pred_value = float(pred_value) if '.' in pred_value else int(pred_value)
 
@@ -315,7 +315,7 @@ def VQA_19_Eval(eval_dataset,
 
                     try:
                         if ('.' in pred_value) and (int(float(pred_value)) == float(pred_value)):
-                            pred_value = int(pred_value)
+                            pred_value = int(float(pred_value))
                         else:
                             pred_value = float(pred_value) if '.' in pred_value else int(pred_value)
 
@@ -454,7 +454,7 @@ def VQA_19_Eval(eval_dataset,
 
                     try:
                         if ('.' in pred_value) and (int(float(pred_value)) == float(pred_value)):
-                            pred_value = int(pred_value)
+                            pred_value = int(float(pred_value))
                         else:
                             pred_value = float(pred_value) if '.' in pred_value else int(pred_value)
 
@@ -595,7 +595,7 @@ def VQA_19_Eval(eval_dataset,
 
                     try:
                         if ('.' in pred_value) and (int(float(pred_value)) == float(pred_value)):
-                            pred_value = int(pred_value)
+                            pred_value = int(float(pred_value))
                         else:
                             pred_value = float(pred_value) if '.' in pred_value else int(pred_value)
 
@@ -742,7 +742,7 @@ def VQA_19_Eval(eval_dataset,
 
                     try:
                         if ('.' in pred_value) and (int(float(pred_value)) == float(pred_value)):
-                            pred_value = int(pred_value)
+                            pred_value = int(float(pred_value))
                         else:
                             pred_value = float(pred_value) if '.' in pred_value else int(pred_value)
 
