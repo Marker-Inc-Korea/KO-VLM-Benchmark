@@ -110,6 +110,8 @@ sh eval.sh
 # Results🌟
 | Model | 시각화자료-Ko-VQA (Acc.) |
 | ------------- | ------------- |
+| `Gemini-2.5-pro` | **91.80** |
+| `Gemini-2.5-flash` | 85.73 |
 | `Qwen2.5-VL-32B-Instruct` | **60.48** |
 | `Qwen2.5-VL-7B-Instruct` | 53.27 | 
 | `VARCO-VISION-14B-HF` | 43.67 |
