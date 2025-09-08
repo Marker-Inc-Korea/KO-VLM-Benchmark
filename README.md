@@ -1,7 +1,8 @@
 # Introduction😋
 오늘날 해외에서 멀티모달에 대한 관심이 커짐에 따라 foundation model 및 benchmark dataset이 다양하게 제작되고 공유되고 있습니다.  
 하지만, 해외 멀티모달 benchmark 경우 질문/답변에 대한 구성이 `영어`로 이루어져 있어, 한국어 능력에 대한 평가를 정확하게 할 수 없습니다.😵   
-이에 따라, 저희는 기존에 한국어 기반 VLM을 평가할 수 있는 데이터셋이 많지 않다는 것을 인지하였고, 오픈소스 기여와 발전을 위해 **🔥KO-VLM Benchmark🔱 dataset**를 제작하게 되었습니다.🤗  
+이에 따라, 저희는 기존에 한국어 기반 VLM을 평가할 수 있는 데이터셋이 많지 않다는 것을 인지하였고,   
+오픈소스 기여와 발전을 위해 **🔥KO-VLM Benchmark🔱 dataset**를 제작하게 되었습니다.🤗  
   
 **AI-Hub**에서는 한국어 기반의 Vision Question Answering (VQA) 데이터셋을 풍부하게 제공하고 있습니다.🌎    
 저희는 AI-Hub에서 제공하는 `시각화질의응답/멀티모달정보검색` 2가지 데이터셋을 활용하여 **KO-VLM Benchmark dataset🔱** 제작하였고,  
