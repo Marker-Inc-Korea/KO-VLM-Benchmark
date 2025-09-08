@@ -2,8 +2,8 @@
 
 
 각각의 VLM 데이터셋에 대한 자세한 리뷰 및 코드 설명  
-1️⃣[KO-VQA]()  
-2️⃣[KO-MMQ]()
+1️⃣[KO-VQA🔱](https://github.com/Marker-Inc-Korea/KO-VLM-Benchmark/tree/main/KO-VQA)  
+2️⃣[KO-MMQ🔱]()
 
 # Contents
 1. [Introduction](https://github.com/Marker-Inc-Korea/KO-VQA-Benchmark?tab=readme-ov-file#introduction)😋
