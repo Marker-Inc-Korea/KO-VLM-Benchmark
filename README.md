@@ -109,7 +109,7 @@ sh eval.sh
   
 # Results🌟
 | Model | KO-VQA (Acc.) | KO-MMQ (Acc.) |
-| ------------- | ------------- |
+| ------------- | ------------- | ------------- |
 | `Gemini-2.5-pro` | **91.80** | NaN |
 | `Gemini-2.5-flash` | 85.73 | NaN |
 | `Qwen2.5-VL-32B-Instruct` | **60.48** | NaN |
