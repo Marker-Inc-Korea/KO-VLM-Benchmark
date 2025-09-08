@@ -6,9 +6,9 @@
 2️⃣[KO-MMQ🔱](https://github.com/Marker-Inc-Korea/KO-VLM-Benchmark/tree/main/KO-MMQ)
   
 # Contents
-1. [Introduction😋](https://github.com/Marker-Inc-Korea/KO-VQA-Benchmark?tab=readme-ov-file#introduction)😋
-2. [Contributions👽](https://github.com/Marker-Inc-Korea/KO-VQA-Benchmark?tab=readme-ov-file#how-to-evaluate)🦾
-3. [Results🌟](https://github.com/Marker-Inc-Korea/KO-VQA-Benchmark?tab=readme-ov-file#results)🌟
+1. [Introduction😋](https://github.com/Marker-Inc-Korea/KO-VQA-Benchmark?tab=readme-ov-file#introduction)
+2. [Contributions👽](https://github.com/Marker-Inc-Korea/KO-VQA-Benchmark?tab=readme-ov-file#how-to-evaluate)
+3. [Results🌟](https://github.com/Marker-Inc-Korea/KO-VQA-Benchmark?tab=readme-ov-file#results)
 4. [References](https://github.com/Marker-Inc-Korea/KO-VQA-Benchmark?tab=readme-ov-file#references)
 5. [Acknowledgement](https://github.com/Marker-Inc-Korea/KO-VQA-Benchmark?tab=readme-ov-file#acknowledgement)
   
