@@ -108,21 +108,23 @@ sh eval.sh
 > You need to set `base_model` and `huggingfacce_token`.
   
 # Results🌟
-| Model | 시각화자료-Ko-VQA (Acc.) |
+| Model | KO-VQA (Acc.) | KO-MMQ (Acc.) |
 | ------------- | ------------- |
-| `Gemini-2.5-pro` | **91.80** |
-| `Gemini-2.5-flash` | 85.73 |
-| `Qwen2.5-VL-32B-Instruct` | **60.48** |
-| `Qwen2.5-VL-7B-Instruct` | 53.27 | 
-| `VARCO-VISION-14B-HF` | 43.67 |
-| `Gukbap-Ovis2-16B` | 34.80 | 
-| `Ovis2-16B` | 34.20 |
-| `gemma-3-27b-it` | 34.20 |
-| `Gukbap-Gemma3-27B-VL` | 33.60 | 
-| `Ovis2-34B` | 32.50 |
-| `Gukbap-Ovis2-34B` | 31.93 | 
-| `gemma-3-12b-it` | 28.73 |
-| `Bllossom-AICA-5B` | 20.67 | 
+| `Gemini-2.5-pro` | **91.80** | NaN |
+| `Gemini-2.5-flash` | 85.73 | NaN |
+| `Qwen2.5-VL-32B-Instruct` | **60.48** | NaN |
+| `Qwen2.5-VL-7B-Instruct` | 53.27 | 39.50 |
+| `Ovis2.5-9B (w/ thinking)` | NaN | NaN |
+| `Ovis2.5-2B (w/ thinking)` | NaN | 32.25 |
+| `VARCO-VISION-14B-HF` | 43.67 | 4.00 |
+| `Gukbap-Ovis2-16B` | 34.80 | NaN |
+| `Ovis2-16B` | 34.20 | NaN |
+| `gemma-3-27b-it` | 34.20 | NaN |
+| `Gukbap-Gemma3-27B-VL` | 33.60 | NaN |
+| `Ovis2-34B` | 32.50 | NaN |
+| `Gukbap-Ovis2-34B` | 31.93 | NaN |
+| `gemma-3-12b-it` | 28.73 | 30.25 |
+| `Bllossom-AICA-5B` | 20.67 | 2.00 |
    
 # References
 - [AIHub - 시각화질의응답 데이터셋](https://www.aihub.or.kr/aihubdata/data/view.do?currMenu=115&topMenu=100&dataSetSn=71812)
