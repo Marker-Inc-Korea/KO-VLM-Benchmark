@@ -53,6 +53,7 @@
 ```
   
 ## 2️⃣KO-MMQ
+(TODO)
   
 # Results🌟
 | Model | KO-VQA (Acc.) | KO-MMQ (Acc.) |
