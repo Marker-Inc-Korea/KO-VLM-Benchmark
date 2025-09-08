@@ -1,6 +1,17 @@
 # Introduction😋
+해외에서 멀티모달에 대한 관심이 커짐에 따라 foundation model 및 benchmark dataset이 다양하게 제작되고 공유되고 있습니다.  
+하지만, 해외 multimodal benchmark 경우 대부분의 input/output이 `영어`가 기준이다보니, 한국어 능력에 대한 평가를 정확하게 할 수 없습니다.😵   
+이에 따라, 저희는 기존에 한국어 기반 VLM을 평가할 수 있는 데이터셋이 많지 않다는 것을 인지하였고, 오픈소스 기여와 발전을 위해 **🔥KO-VLM Benchmark🔱 dataset**를 제작하게 되었습니다.🤗  
+  
+**AI-Hub**에서는 한국어 기반의 Vision Question Answering (VQA) 데이터셋을 풍부하게 제공하고 있습니다.  
+저희는 AI-Hub에서 제공하는 `시각화질의응답/멀티모달정보검색` 2가지 데이터셋을 활용하여 **KO-VLM Benchmark dataset** 제작하였고, 이를 활용해 국내외 있는 Vision-Language Model (VLM)들의 한국어 문서 및 질문 이해 능력을 측정할 수 있습니다.  
 
+**KO-VLM Benchamrk dataset🔱**은 총 2가지 데이터셋으로 구성되어 있습니다.  
+- KO-VQA🔱: 시각화질의응답 데이터셋으로 제작
+- KO-MMQ🔱: 멀티모달정보검색 데이터셋으로 제작
+KO-VQA 데이터셋은 실제 문서
 
+---
 각각의 VLM 데이터셋에 대한 자세한 리뷰 및 코드 설명  
 1️⃣[KO-VQA🔱](https://github.com/Marker-Inc-Korea/KO-VLM-Benchmark/tree/main/KO-VQA)  
 2️⃣[KO-MMQ🔱](https://github.com/Marker-Inc-Korea/KO-VLM-Benchmark/tree/main/KO-MMQ)
