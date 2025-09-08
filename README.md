@@ -44,7 +44,7 @@
 - 문서를 기반으로 질문에 대한 대답을 찾는 능력
 - VLM 답변과 문서와의 alignment (숫자 표기 단위, 답변에 대한 표현 방법 등등)
 ```
-> 자세한 KO-VQA에 대한 설명과 예제 사진은 [KO-VQA README🔱](https://github.com/Marker-Inc-Korea/KO-VLM-Benchmark/tree/main/KO-VQA) 참고해주세요!
+> 자세한 KO-VQA에 대한 설명과 예제들은 [KO-VQA README🔱](https://github.com/Marker-Inc-Korea/KO-VLM-Benchmark/tree/main/KO-VQA) 참고해주세요!
   
 저희가 제작한 KO-VQA 데이터셋은 기존 한국어 VLM 평가 데이터셋들과 비교하였을 때 아래와 같은 주요한 차별점이 있습니다!
 ```
