@@ -121,6 +121,7 @@ sh eval.sh
 | `Ovis2-16B` | 34.20 | NaN |
 | `gemma-3-27b-it` | 34.20 | NaN |
 | `Gukbap-Gemma3-27B-VL` | 33.60 | NaN |
+| `Gukbap-Gemma3-12B-VL` | NaN | 30.25 |
 | `Ovis2-34B` | 32.50 | NaN |
 | `Gukbap-Ovis2-34B` | 31.93 | NaN |
 | `gemma-3-12b-it` | 28.73 | 30.25 |
