@@ -14,9 +14,9 @@
   
 # Contributions👽
 ## KO-VQA
----
+-
 <자세한 KO-VQA에 대한 설명과 예제 사진은 [KO-VQA README🔱](https://github.com/Marker-Inc-Korea/KO-VLM-Benchmark/tree/main/KO-VQA) 참고해주세요!>  
----
+-
 저희 KO-VQA 데이터셋에서는 아래와 같은 VLM 모델의 성능을 평가할 수 있습니다.🔥🔥  
 ```
 - 한국어 기반 문서에 대한 이해
