@@ -13,7 +13,7 @@
 5. [Acknowledgement](https://github.com/Marker-Inc-Korea/KO-VQA-Benchmark?tab=readme-ov-file#acknowledgement)
   
 # Contributions👽
-## KO-VQA
+## 1️⃣KO-VQA
 저희 KO-VQA 데이터셋에서는 아래와 같은 VLM 모델의 성능을 평가할 수 있습니다.🔥🔥  
 ```
 - 한국어 기반 문서에 대한 이해
@@ -30,7 +30,7 @@
 15개의 다양한 domain으로 구성된 문서를 활용. (다양성🌟)
 ```
   
-## KO-MMQ
+## 2️⃣KO-MMQ
   
 # Results🌟
 | Model | KO-VQA (Acc.) | KO-MMQ (Acc.) |
