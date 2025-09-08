@@ -1,9 +1,9 @@
 # Introduction😋
 
 
-각각의 VLM 데이터셋에 대한 자세한 리뷰 및 코드 설명  
+각각의 VLM 데이터셋에 대한 __자세한 리뷰 및 코드 설명__  
 1️⃣[KO-VQA🔱](https://github.com/Marker-Inc-Korea/KO-VLM-Benchmark/tree/main/KO-VQA)  
-2️⃣[KO-MMQ🔱]()
+2️⃣[KO-MMQ🔱](https://github.com/Marker-Inc-Korea/KO-VLM-Benchmark/tree/main/KO-MMQ)
 
 # Contents
 1. [Introduction](https://github.com/Marker-Inc-Korea/KO-VQA-Benchmark?tab=readme-ov-file#introduction)😋
