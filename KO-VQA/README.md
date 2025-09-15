@@ -108,21 +108,24 @@ sh eval.sh
 > You need to set `base_model` and `huggingfacce_token`.
   
 # Results🌟
-| Model | 시각화자료-Ko-VQA (Acc.) |
+| Model | KO-VQA (Acc.) |
 | ------------- | ------------- |
 | `Gemini-2.5-pro` | **91.80** |
-| `Gemini-2.5-flash` | 85.73 |
+| `Gemini-2.5-flash` | 85.73 | 
 | `Qwen2.5-VL-32B-Instruct` | **60.48** |
-| `Qwen2.5-VL-7B-Instruct` | 53.27 | 
+| `Qwen2.5-VL-7B-Instruct` | 53.27 |
+| `Ovis2.5-2B (w/ thinking)` | NaN |
+| `Ovis2.5-2B (w/0 thinking)` | 31.27 |
 | `VARCO-VISION-14B-HF` | 43.67 |
-| `Gukbap-Ovis2-16B` | 34.80 | 
+| `Gukbap-Ovis2-16B` | 34.80 |
 | `Ovis2-16B` | 34.20 |
 | `gemma-3-27b-it` | 34.20 |
-| `Gukbap-Gemma3-27B-VL` | 33.60 | 
+| `Gukbap-Gemma3-27B-VL` | 33.60 |
+| `Gukbap-Gemma3-12B-VL` | 30.13 |
 | `Ovis2-34B` | 32.50 |
-| `Gukbap-Ovis2-34B` | 31.93 | 
+| `Gukbap-Ovis2-34B` | 31.93 |
 | `gemma-3-12b-it` | 28.73 |
-| `Bllossom-AICA-5B` | 20.67 | 
+| `Bllossom-AICA-5B` | 20.67 |
    
 # References
 - [AIHub - 시각화질의응답 데이터셋](https://www.aihub.or.kr/aihubdata/data/view.do?currMenu=115&topMenu=100&dataSetSn=71812)
