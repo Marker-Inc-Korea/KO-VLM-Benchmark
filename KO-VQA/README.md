@@ -115,7 +115,7 @@ sh eval.sh
 | `Qwen2.5-VL-32B-Instruct` | **60.48** |
 | `Qwen2.5-VL-7B-Instruct` | 53.27 |
 | `Ovis2.5-2B (w/ thinking)` | 34.07 |
-| `Ovis2.5-2B (w/0 thinking)` | 31.27 |
+| `Ovis2.5-2B (w/o thinking)` | 31.27 |
 | `VARCO-VISION-14B-HF` | 43.67 |
 | `Gukbap-Ovis2-16B` | 34.80 |
 | `Ovis2-16B` | 34.20 |
