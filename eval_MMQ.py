@@ -46,7 +46,6 @@ def main(
         model = Gemma3ForConditionalGeneration.from_pretrained( # Gemma3ForConditionalGeneration
             base_model,
             torch_dtype=torch.bfloat16,
-            #cache_dir='/home/jovyan/share',
             device_map=device_map,
             attn_implementation='flash_attention_2'
         )
@@ -60,7 +59,6 @@ def main(
             torch_dtype=torch.bfloat16,
             trust_remote_code=True,
             device_map=device_map,
-            cache_dir='/home/jovyan/share',
         )
 
     elif ('Ovis' in base_model) or ('Gukbap' in base_model):
@@ -68,7 +66,6 @@ def main(
         model = AutoModelForCausalLM.from_pretrained(
             base_model,
             device_map=device_map,
-            cache_dir='/home/jovyan/share',
             torch_dtype=torch.bfloat16,
             trust_remote_code=True,
             multimodal_max_length=cutoff_len,
@@ -82,7 +79,6 @@ def main(
         model = MllamaForConditionalGeneration.from_pretrained(
             base_model,
             torch_dtype=torch.bfloat16,
-            #cache_dir='/home/jovyan/share',
             device_map=device_map
             )
         
@@ -94,7 +90,6 @@ def main(
             base_model,
             torch_dtype="float16",
             device_map=device_map,
-            cache_dir='/home/jovyan/share',
             attn_implementation="flash_attention_2"
         )
 
@@ -106,7 +101,6 @@ def main(
             base_model,
             torch_dtype="float16",
             device_map="auto",
-            cache_dir='/home/jovyan/share',
             attn_implementation="flash_attention_2"
         )
 
