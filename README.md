@@ -63,7 +63,7 @@
 | `Qwen2.5-VL-32B-Instruct` | **60.48** | NaN |
 | `Qwen2.5-VL-7B-Instruct` | 53.27 | 39.50 |
 | `Ovis2.5-9B (w/ thinking)` | NaN | NaN |
-| `Ovis2.5-2B (w/ thinking)` | NaN | 32.25 |
+| `Ovis2.5-2B (w/ thinking)` | 34.07 | 32.25 |
 | `VARCO-VISION-14B-HF` | 43.67 | 4.00 |
 | `Gukbap-Ovis2-16B` | 34.80 | NaN |
 | `Ovis2-16B` | 34.20 | NaN |
