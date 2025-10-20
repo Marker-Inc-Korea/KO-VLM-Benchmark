@@ -88,3 +88,10 @@
 
 # Acknowledgement 
 This research was supported by the Korea Institute for Advancement of Technology (KIAT) grant funded by the Korean Government (MOTIE) (RS-2024-00416131, HRD Program for Industrial Innovation)
+
+# TODO
+- [ ] KO-MMQ 설명추가
+- [ ] KO-OCVCR 설명추가
+- [ ] KO-OCVCR 코드추가
+- [ ] 다른 벤치마크 제작 예정 중..
+- [ ] 기타 모델 벤치마크 완료하기
