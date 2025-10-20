@@ -25,7 +25,7 @@
 각각의 VLM 데이터셋에 대한 자세한 리뷰 및 코드 설명은 아래를 참고해주세요😋  
 1️⃣[KO-VQA🔱](https://github.com/Marker-Inc-Korea/KO-VLM-Benchmark/tree/main/KO-VQA)  
 2️⃣[KO-MMQ🔱](https://github.com/Marker-Inc-Korea/KO-VLM-Benchmark/tree/main/KO-MMQ)
-3️⃣[KO-OCVCR]()
+3️⃣[KO-OCVCR](https://github.com/Marker-Inc-Korea/KO-VLM-Benchmark/tree/main/KO-OCVCR)
 
 ---
   
@@ -69,6 +69,7 @@
 | `Qwen2.5-VL-7B-Instruct` | 53.27 | 39.50 | 57.02 | 
 | `Ovis2.5-9B (w/ thinking)` | NaN | NaN | NaN |
 | `Ovis2.5-2B (w/ thinking)` | 34.07 | 32.25 | 37.91 |
+| `VARCO-VISION-2.0-14B` | NaN | NaN | NaN |
 | `VARCO-VISION-14B-HF` | 43.67 | 4.00 | 0.01 |
 | `Gukbap-Ovis2-16B` | 34.80 | NaN | NaN |
 | `Ovis2-16B` | 34.20 | NaN | NaN |
