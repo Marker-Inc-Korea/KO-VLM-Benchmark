@@ -45,7 +45,18 @@ KO-OCRAG 데이터셋의 일부 [subset]()을 `???`에서 확인하실 수 있�
 > 전체 문항에 대해서는, 데이터 유출 및 데이터 저작권 문제로 인해 공유가 어렵습니다🤫
 
 # How to evaluate🦾
-KO-OCRAG 데이터셋은 (TODO)
+KO-OCRAG 데이터셋은 기본적인 텍스트 OCR 능력과 더불어서, 이미지/도식에 대한 description에 대해서 평가가 이루어져야합니다.🦾  
+이때 텍스트 OCR은 정답이 정해져 있는 반면, 이미지/도식에 대한 description에 대한 명확한 정답은 없습니다.🤫    
+  
+이러한 점을 모두 고려하여 저희는 아래의 3가지 metric에 대한 average score를 활용하였습니다:
+- `WER`: Word error rate 평가
+- `CER`: Charater error rate 평가 
+- `Rouge-2`: 이미지/도식에 대한 description의 의미적 능력 평가
+
+저희가 평가에 이용한 prompt는 다음과 같습니다:
+```
+(TODO)
+```
 
 ---
 
