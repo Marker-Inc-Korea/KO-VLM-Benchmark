@@ -25,7 +25,7 @@
 각각의 VLM 데이터셋에 대한 자세한 리뷰 및 코드 설명은 아래를 참고해주세요😋  
 1️⃣[KO-VQA🔱](https://github.com/Marker-Inc-Korea/KO-VLM-Benchmark/tree/main/KO-VQA)  
 2️⃣[KO-MMQ🔱](https://github.com/Marker-Inc-Korea/KO-VLM-Benchmark/tree/main/KO-MMQ)  
-3️⃣[KO-OCVCR🔱](https://github.com/Marker-Inc-Korea/KO-VLM-Benchmark/tree/main/KO-OCVCR)
+3️⃣[KO-OCRAG🔱](https://github.com/Marker-Inc-Korea/KO-VLM-Benchmark/tree/main/KO-OCVCR)
 
 ---
   
@@ -57,11 +57,11 @@
 ## 2️⃣KO-MMQ
 (TODO)
 
-## 3️⃣KO-OCVCR
+## 3️⃣KO-OCRAG
 (TODO)
   
 # Results🌟
-| Model | KO-VQA (Acc.) | KO-MMQ (Acc.) | KO-OCVCR (Avg.) |
+| Model | KO-VQA (Acc.) | KO-MMQ (Acc.) | KO-OCRAG (Avg.) |
 | ------------- | ------------- | ------------- | ------------- |
 | `Gemini-2.5-pro` | **91.80** | **97.50** | NaN |
 | `Gemini-2.5-flash` | 85.73 | 85.50 | NaN |
