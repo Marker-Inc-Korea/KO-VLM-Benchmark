@@ -45,7 +45,7 @@ flash-attn == 2.7.4.post1
 - 2차: `human editing`을 걸쳐 데이터 정제
 - 3차: `human editing`을 통해 `RAG parsing`에 적합한 데이터 제작
    
-KO-OCRAG 데이터셋의 일부 [subset](https://github.com/Marker-Inc-Korea/KO-VLM-Benchmark/blob/main/data/handwritten_complex_document_OCR_benckmark_subset.xlsx)을 `handwritten_complex_document_OCR_benckmark_subset.xlsx`에서 확인하실 수 있습니다.🌞  
+KO-OCRAG 데이터셋의 일부 [subset](https://github.com/Marker-Inc-Korea/KO-VLM-Benchmark/blob/main/data/complex_document_OCR_benckmark_subset.xlsx)을 `complex_document_OCR_benckmark_subset.xlsx`에서 확인하실 수 있습니다.🌞  
 > 전체 문항에 대해서는, 데이터 유출 및 데이터 저작권 문제로 인해 공유가 어렵습니다🤫  
 > GT에 해당하는 열은 `RAG-Parsing` 입니다!
 
