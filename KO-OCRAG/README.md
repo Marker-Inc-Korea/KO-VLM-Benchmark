@@ -43,7 +43,7 @@ flash-attn == 2.7.4.post1
 그리고 각 데이터셋에 OCRAG 벤치마크를 위한 ground-truth caption을 만들기 위해, 총 3차의 데이터 정제 과정을 걸쳤습니다.
 - 1차: `gemini-2.5-pro`를 활용해 데이터 생성
 - 2차: `human editing`을 걸쳐 데이터 정제
-- 3차: 'human editing`을 통해 `RAG parsing`에 적합한 데이터 제작
+- 3차: `human editing`을 통해 `RAG parsing`에 적합한 데이터 제작
    
 KO-OCRAG 데이터셋의 일부 [subset](https://github.com/Marker-Inc-Korea/KO-VLM-Benchmark/blob/main/data/handwritten_complex_document_OCR_benckmark_subset.xlsx)을 `handwritten_complex_document_OCR_benckmark_subset.xlsx`에서 확인하실 수 있습니다.🌞  
 > 전체 문항에 대해서는, 데이터 유출 및 데이터 저작권 문제로 인해 공유가 어렵습니다🤫  
