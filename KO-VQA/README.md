@@ -30,14 +30,6 @@ accelerate == 1.6.0
 flash-attn == 2.7.4.post1
 ```
 
-# Contents
-1. [Introduction](https://github.com/Marker-Inc-Korea/KO-VQA-Benchmark?tab=readme-ov-file#introduction)😋
-2. [How to make datasets](https://github.com/Marker-Inc-Korea/KO-VQA-Benchmark?tab=readme-ov-file#how-to-make-datasets)👽
-3. [How to evaluate](https://github.com/Marker-Inc-Korea/KO-VQA-Benchmark?tab=readme-ov-file#how-to-evaluate)🦾
-4. [Results](https://github.com/Marker-Inc-Korea/KO-VQA-Benchmark?tab=readme-ov-file#results)🌟
-5. [References](https://github.com/Marker-Inc-Korea/KO-VQA-Benchmark?tab=readme-ov-file#references)
-6. [Acknowledgement](https://github.com/Marker-Inc-Korea/KO-VQA-Benchmark?tab=readme-ov-file#acknowledgement)
-
 # How to make datasets👽
 AIhub에서 제공한, [**시각화질의응답 데이터셋**](https://www.aihub.or.kr/aihubdata/data/view.do?currMenu=115&topMenu=100&dataSetSn=71812)은 문서 내 그림, 표, 그래프, 다이어그램(인포그래픽 포함) 등 시각화 자료에 대한 이해 기반 질의응답 데이터로 시각 문서를 이해하고 문서의 내용에 관련된 질문에 대한 응답을 수행할 수 있는 데이터입니다.  
 저희는 위 데이터셋을 벤치마크로 가공하기 위해, 아래의 데이터들을 활용하였습니다.😎
