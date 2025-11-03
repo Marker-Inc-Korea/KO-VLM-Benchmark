@@ -58,7 +58,23 @@
 (TODO)
 
 ## 3️⃣KO-OCRAG
-(TODO)
+`공공데이터셋포털`에서는 실제 산업에서 활용되는 다양하고 복잡한 구조를 가진 한국어 문서를 풍부하게 제공하고 있습니다.  
+저희는 공공데이터를 직접 수집하고 가공하여, 기존의 단순한 **한국어 문서 OCR**이 아닌 **RAG용 한국어 문서 OCR**을 평가할 수 있는 데이터셋인 **🔥KO-OCRAG🔥**를 제작하게 되었습니다.  
+
+저희 KO-OCRAG 데이터셋에서는 아래와 같은 VLM 모델의 성능을 평가할 수 있습니다.🔥🔥
+```
+- 복잡한 한국어 문서 구조 이해
+- 고해상도 한국어 문서 OCR 능력
+- 문서에 존재하는 visual information에 대한 text description 생성 능력
+- RAG parsing에 적합한 description 생성 능력
+```
+> 자세한 KO-OCRAG에 대한 설명과 예제들은 [KO-OCRAG README🔱](https://github.com/Marker-Inc-Korea/KO-VLM-Benchmark/tree/main/KO-OCRAG) 참고해주세요!
+
+저희가 제작한 KO-OCRAG 데이터셋은 기존 한국어 VLM 평가 데이터셋들과 비교하였을 때 아래와 같은 주요한 차별점이 있습니다!
+```
+고해상도의 복잡한 구조를 가진 다양한 한국어 문서. (다양성 🌟)
+RAG parsing에 적합한 description 생성 능력. (RAG 🌟)
+```
   
 # Results🌟
 | Model | KO-VQA (Acc.) | KO-VDC (Acc.) | KO-OCRAG (Avg.) |
