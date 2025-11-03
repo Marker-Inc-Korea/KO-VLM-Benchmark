@@ -51,12 +51,12 @@ KO-OCRAG 데이터셋은 (TODO)
 
 평가 코드는 아래 심플하게 돌려볼 수 있습니다!  
 ```bash
-(TODO)
+sh eval_OCRAG.sh
 ```
 > You need to set `base_model` and `huggingfacce_token`.
   
 # Results🌟
-| Model | KO-OCRAG (Acc.) |
+| Model | KO-OCRAG (Avg.) |
 | ------------- | ------------- |
 | `Gemini-2.5-pro` | NaN |
 | `Gemini-2.5-flash` | NaN | 
