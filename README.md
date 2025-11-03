@@ -24,7 +24,7 @@
 ---
 각각의 VLM 데이터셋에 대한 자세한 리뷰 및 코드 설명은 아래를 참고해주세요😋  
 1️⃣[KO-VQA🔱](https://github.com/Marker-Inc-Korea/KO-VLM-Benchmark/tree/main/KO-VQA)  
-2️⃣[KO-VDC🔱](https://github.com/Marker-Inc-Korea/KO-VLM-Benchmark/tree/main/KO-MMQ)  
+2️⃣[KO-VDC🔱](https://github.com/Marker-Inc-Korea/KO-VLM-Benchmark/tree/main/KO-VDC)  
 3️⃣[KO-OCRAG🔱](https://github.com/Marker-Inc-Korea/KO-VLM-Benchmark/tree/main/KO-OCRAG)
 
 ---
@@ -54,7 +54,7 @@
 15개의 다양한 domain으로 구성된 문서를 활용. (다양성🌟)
 ```
   
-## 2️⃣KO-MMQ
+## 2️⃣KO-VDC
 (TODO)
 
 ## 3️⃣KO-OCRAG
@@ -66,20 +66,20 @@
 | `Gemini-2.5-pro` | **91.80** | **97.50** | NaN |
 | `Gemini-2.5-flash` | 85.73 | 85.50 | NaN |
 | `Qwen2.5-VL-32B-Instruct` | **60.48** | NaN | NaN |
-| `Qwen2.5-VL-7B-Instruct` | 53.27 | 39.50 | 57.02 | 
+| `Qwen2.5-VL-7B-Instruct` | 53.27 | 39.50 | NaN | 
 | `Ovis2.5-9B (w/ thinking)` | NaN | NaN | NaN |
-| `Ovis2.5-2B (w/ thinking)` | 34.07 | 32.25 | 37.91 |
+| `Ovis2.5-2B (w/ thinking)` | 34.07 | 32.25 | NaN |
 | `VARCO-VISION-2.0-14B` | NaN | NaN | NaN |
-| `VARCO-VISION-14B-HF` | 43.67 | 4.00 | 0.01 |
+| `VARCO-VISION-14B-HF` | 43.67 | 4.00 | NaN |
 | `Gukbap-Ovis2-16B` | 34.80 | NaN | NaN |
 | `Ovis2-16B` | 34.20 | NaN | NaN |
 | `gemma-3-27b-it` | 34.20 | NaN | NaN |
 | `Gukbap-Gemma3-27B-VL` | 33.60 | NaN | NaN |
-| `Gukbap-Gemma3-12B-VL` | 30.13 | 30.25 | 12.17 |
+| `Gukbap-Gemma3-12B-VL` | 30.13 | 30.25 | NaN |
 | `Ovis2-34B` | 32.50 | NaN | NaN |
 | `Gukbap-Ovis2-34B` | 31.93 | NaN | NaN |
-| `gemma-3-12b-it` | 28.73 | 30.25 | 21.62 |
-| `Bllossom-AICA-5B` | 20.67 | 2.00 | 5.21 |
+| `gemma-3-12b-it` | 28.73 | 30.25 | NaN |
+| `Bllossom-AICA-5B` | 20.67 | 2.00 | NaN |
    
 # References
 - [AIHub - 시각화질의응답 데이터셋](https://www.aihub.or.kr/aihubdata/data/view.do?currMenu=115&topMenu=100&dataSetSn=71812)
