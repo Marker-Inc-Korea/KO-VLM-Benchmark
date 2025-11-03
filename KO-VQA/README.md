@@ -103,7 +103,7 @@ Answer: 19,925백만 원이 순국선열 애국지사사업기금의 지출액�
 평가 코드는 아래 심플하게 돌려볼 수 있습니다!  
 ```bash
 # Evaluation code
-sh eval.sh
+sh eval_VQA.sh
 ```
 > You need to set `base_model` and `huggingfacce_token`.
   
