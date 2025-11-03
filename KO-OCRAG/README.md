@@ -1,4 +1,4 @@
-# Introduction😋
+# Introduction: KO-OCRAG (OCR for RAG)😋
 ![img2](../그림3_1.png)   
 ![img](../그림4.png)   
 `공공데이터셋포털`에서는 실제 산업에서 활용되는 다양하고 복잡한 구조를 가진 한국어 문서를 풍부하게 제공하고 있습니다.  
