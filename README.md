@@ -80,6 +80,7 @@
 | `Gukbap-Ovis2-34B` | 31.93 | NaN | NaN |
 | `gemma-3-12b-it` | 28.73 | 30.25 | NaN |
 | `Bllossom-AICA-5B` | 20.67 | 2.00 | NaN |
+> KO-OCRAG: `(WER+CER+rough2)/3`
    
 # References
 - [AIHub - 시각화질의응답 데이터셋](https://www.aihub.or.kr/aihubdata/data/view.do?currMenu=115&topMenu=100&dataSetSn=71812)
@@ -91,8 +92,6 @@ This research was supported by the Korea Institute for Advancement of Technology
 
 # TODO
 - [ ] KO-VDC 설명추가
-- [ ] KO-OCRAG 설명추가
 - [ ] KO-OCRAG 코드추가
-- [ ] Code Update
-- [ ] 다른 벤치마크 제작 예정 중..
-- [ ] 기타 모델 벤치마크 완료하기
+- [ ] 전체적인 Code Update
+- [ ] Models 벤치마크 완료하기
