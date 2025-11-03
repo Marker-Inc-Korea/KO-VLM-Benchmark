@@ -11,7 +11,7 @@
 **KO-VLM Benchamrk dataset🔱**은 총 3가지 데이터셋으로 구성되어 있습니다.
 ```
 - KO-VQA🔱: `다양한 도메인의 한국어 문서 이해 능력` 및 `문서 기반의 답변 추론 능력`에 대해 평가
-- KO-MMQ🔱: `한국어 시각화 도식 자료 이해 능력` 및 `도식 기반의 설명문 생성/이해 능력`에 대해 평가
+- KO-VDC🔱: `한국어 시각화 도식 자료 이해 능력` 및 `도식 기반의 설명문 생성/이해 능력`에 대해 평가
 - KO-OCRAG🔱: `한국어 문서 OCR 능력` 및 `문서에 등장하는 Visual Context parsing 능력`에 대해 평가
 ```
   
@@ -24,7 +24,7 @@
 ---
 각각의 VLM 데이터셋에 대한 자세한 리뷰 및 코드 설명은 아래를 참고해주세요😋  
 1️⃣[KO-VQA🔱](https://github.com/Marker-Inc-Korea/KO-VLM-Benchmark/tree/main/KO-VQA)  
-2️⃣[KO-MMQ🔱](https://github.com/Marker-Inc-Korea/KO-VLM-Benchmark/tree/main/KO-MMQ)  
+2️⃣[KO-VDC🔱](https://github.com/Marker-Inc-Korea/KO-VLM-Benchmark/tree/main/KO-MMQ)  
 3️⃣[KO-OCRAG🔱](https://github.com/Marker-Inc-Korea/KO-VLM-Benchmark/tree/main/KO-OCVCR)
 
 ---
@@ -61,7 +61,7 @@
 (TODO)
   
 # Results🌟
-| Model | KO-VQA (Acc.) | KO-MMQ (Acc.) | KO-OCRAG (Avg.) |
+| Model | KO-VQA (Acc.) | KO-VDC (Acc.) | KO-OCRAG (Avg.) |
 | ------------- | ------------- | ------------- | ------------- |
 | `Gemini-2.5-pro` | **91.80** | **97.50** | NaN |
 | `Gemini-2.5-flash` | 85.73 | 85.50 | NaN |
@@ -90,8 +90,9 @@
 This research was supported by the Korea Institute for Advancement of Technology (KIAT) grant funded by the Korean Government (MOTIE) (RS-2024-00416131, HRD Program for Industrial Innovation)
 
 # TODO
-- [ ] KO-MMQ 설명추가
-- [ ] KO-OCVCR 설명추가
-- [ ] KO-OCVCR 코드추가
+- [ ] KO-VDC 설명추가
+- [ ] KO-OCRAG 설명추가
+- [ ] KO-OCRAG 코드추가
+- [ ] Code Update
 - [ ] 다른 벤치마크 제작 예정 중..
 - [ ] 기타 모델 벤치마크 완료하기
