@@ -104,7 +104,6 @@ RAG parsing에 적합한 description 생성 능력. (RAG 🌟)
 This research was supported by the Korea Institute for Advancement of Technology (KIAT) grant funded by the Korean Government (MOTIE) (RS-2024-00416131, HRD Program for Industrial Innovation)
 
 # TODO
-- [ ] KO-VDC 설명추가
-- [ ] KO-OCRAG 코드추가
+- [ ] 데이터셋 설명추가
 - [ ] 전체적인 Code Update
-- [ ] Models 벤치마크 완료하기
+- [ ] 모델 벤치마크 완료하기
