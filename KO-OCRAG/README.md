@@ -28,6 +28,9 @@ tokenizers == 0.21.1
 qwen-vl-utils[decord] == 0.0.8
 accelerate == 1.6.0
 flash-attn == 2.7.4.post1
+evaluate == 0.3.0
+rouge_score
+jiwer == 3.0.0
 ```
 
 # Contents
