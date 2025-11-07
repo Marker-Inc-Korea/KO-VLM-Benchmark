@@ -23,7 +23,7 @@ AIhub에서 제공한, 시각화질의응답 데이터셋은 `문서 내 그림,
 
 ```
 pytorch == 2.3.0 with cuda 12.1
-transformers == 4.51.3
+transformers == 4.57.1
 tokenizers == 0.21.1
 qwen-vl-utils[decord] == 0.0.8
 accelerate == 1.6.0
