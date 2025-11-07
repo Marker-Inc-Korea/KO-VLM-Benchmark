@@ -32,13 +32,6 @@ rouge_score
 jiwer == 3.0.0
 ```
 
-# Contents
-1. [Introduction](https://github.com/Marker-Inc-Korea/KO-VQA-Benchmark?tab=readme-ov-file#introduction)😋
-2. [How to make datasets](https://github.com/Marker-Inc-Korea/KO-VQA-Benchmark?tab=readme-ov-file#how-to-make-datasets)👽
-3. [How to evaluate](https://github.com/Marker-Inc-Korea/KO-VQA-Benchmark?tab=readme-ov-file#how-to-evaluate)🦾
-4. [Results](https://github.com/Marker-Inc-Korea/KO-VQA-Benchmark?tab=readme-ov-file#results)🌟
-5. [References](https://github.com/Marker-Inc-Korea/KO-VQA-Benchmark?tab=readme-ov-file#references)
-
 # How to make datasets👽
 `공공데이터셋포털`에서 제공하는 다양한 데이터셋은, 실제 산업에서 활용되는 다양하고 복잡한 구조를 가진 한국어 문서로 구성되어 있습니다.  
 저희는 `공공데이터셋포털`에서 수작업으로 `고해상도/복잡한 구조/풍부한 이미지&도식`을 복합적으로 가지고 있는 문서 페이지 약 100장을 수집했습니다.🦾   
