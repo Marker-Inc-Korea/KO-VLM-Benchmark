@@ -44,7 +44,39 @@ KO-VDC 데이터셋의 일부 [subset](https://github.com/Marker-Inc-Korea/KO-VL
 > `Gemini_GT_1`이 정답 설명문이며, `Gemini_GT_2~4`는 틀린 설명문 입니다!
 
 # How to evaluate🦾
-(TODO)
+KO-VDC 데이터셋은 **문서 내 표/도식/그래프만 참고하여 적절한 문서의 설명문을 생성하는 능력을 평가**하는 것이 주요한 목적입니다.  
+이때 설명문에 대한 명확한 답변은 존재하지 않고, `gemini-2.5-pro`로 만든 설명문을 ground truth로 사용하게 되면 편향이 발생하게 됩니다.🤫    
+그래서 저희는 앞서 언급한 것처럼, **틀린 설명문 3가지를 추가적으로 제작하여 가장 적절한 설명문을 고르는 객관식 문제**로 평가합니다.🔥    
+
+저희가 평가에 이용한 prompt는 다음과 같습니다:
+```
+다음 주어진 [A, B, C, D] 보기 중 이미지에 있는 도식 정보를 가장 잘 설명하는 것을 고르시오. 답변은 무조건 알파벳이 먼저 나와야합니다.\n\n<보기>\n{choices}# 가장 적절한 설명문:
+```
+여기서 choices는 설명문들이 나열되는 부분인데, 저희는 평가를 진행하면서 일부 VLM들이 [Lost In the Middle](https://arxiv.org/abs/2307.03172) 현상으로 `A` 또는 `D`를 무지성 정답으로 선택하는 경향이 있다는 것을 확인했습니다.🤥  
+따라서 저희는 평가가 이루어질 때마다, 아래의 코드를 적용하여, **정답의 위치가 매번 바뀌도록 평가하여 일반화된 VLM의 성능을 평가**할 수 있었습니다!🔥    
+```python
+## shuffle
+alpha_list = ['A', 'B', 'C', 'D']
+index_shuffle = random.sample([1,2,3,4], 4)
+alpha_num = 0
+choices = ''
+gt_alpha = ''
+for index in index_shuffle:
+    if index == 1:
+        choices += f'{alpha_list[alpha_num]}. {Gemini_GT_1}\n\n'
+        gt_alpha = alpha_list[alpha_num]
+
+    elif index == 2:
+        choices += f'{alpha_list[alpha_num]}. {Gemini_GT_2}\n\n'
+
+    elif index == 3:
+        choices += f'{alpha_list[alpha_num]}. {Gemini_GT_3}\n\n'
+
+    elif index == 4:
+        choices += f'{alpha_list[alpha_num]}. {Gemini_GT_4}\n\n'
+
+    alpha_num += 1
+```
 
 ---
 
