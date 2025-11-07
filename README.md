@@ -117,6 +117,6 @@ RAG parsing에 적합한 description 생성 능력. (산업성 🌟)
 This research was supported by the Korea Institute for Advancement of Technology (KIAT) grant funded by the Korean Government (MOTIE) (RS-2024-00416131, HRD Program for Industrial Innovation)
 
 # TODO
-- [ ] 데이터셋 설명추가
+- [x] 데이터셋 설명추가
 - [x] 전체적인 Code Update
 - [ ] 모델 벤치마크 완료하기
