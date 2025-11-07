@@ -48,7 +48,7 @@ jiwer == 3.0.0
 - 3차: `human editing`을 통해 `RAG parsing`에 적합한 데이터 제작
 
 여기서 `RAG parsing` 데이터란, **텍스트에 대한 OCR ground-truth와 더불어서 이미지&도식에 대한 text description 포함하고 있는 데이터**를 말합니다.  
-추가적으로, `[image] ~ [/image]` token을 활용하여 텍스트와 이미지&도식에 대한 부분을 분리하여 데이터를 제작하였습니다.   
+추가적으로, `[image] ~ [/image]` token을 활용하여 이미지&도식에 대한 description 부분을 명시하여 `RAG parsing` 목적에 더 적합하도록 데이터를 가공하였습니다.   
 아래는 간단한 데이터셋의 예시입니다!😋  
 ```
 # 국방신문_25_1월호_page-0080.jpg 중 일부
