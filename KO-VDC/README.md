@@ -1,20 +1,24 @@
 # Introduction: KO-VDC (visual context description choice)😋
 ![img2](../그림2.png)   
 ![img2_1](../그림2_1.png)   
-AIhub에서 제공한, (TODO) 
+AIhub에서 제공하는 멀티모달정보검색 데이터셋은 `다양한 표, 도식, 그래프 등등의 시각화 자료`를 포함한 한국어 문서에 대한 caption 정보를 가지고 있는 데이터셋입니다.  
+저희는 해당 데이터셋을 통해, **주어진 표/도식/그래프 만으로 문서의 설명문을 얼마나 잘 생성할 수 있는지**를 평가하기 위해 **🔥KO-VDC (Visual context Description Choice)🔥** 데이터셋을 제작하게 되었습니다!
 
 저희 KO-VDC 데이터셋에서는 아래와 같은 VLM 모델의 성능을 평가할 수 있습니다.🔥🔥
 ```
-(TODO)
+- 복잡한 한국어 기반 표/도식/그래프 이해 능력
+- 한국어 기반 표/도식/그래프에 대한 문서 생성 능력
+- 문서에 존재하는 visual information에 대한 text description 생성 능력
 ```
 
 저희가 제작한 KO-VDC 데이터셋은 기존 한국어 VLM 평가 데이터셋들과 비교하였을 때 아래와 같은 주요한 차별점이 있습니다!
 ```
-(TODO)
+실제 한국어 문서를 활용하여 데이터셋을 제작. (현실성 🌟)
+표/도식/그래프 기반 문서 생성 능력 (산업성 🌟)
 ```
 
 # Environment
-시각화자료질의응답 데이터셋을 기반으로 만든 한국어 VLM 벤치마크 데이터셋 **(KO-VDC)**
+멀티모달정보검색 데이터셋을 기반으로 만든 한국어 VLM 벤치마크 데이터셋 **(KO-VDC)**
 
 ```
 pytorch == 2.3.0 with cuda 12.1
@@ -27,7 +31,7 @@ flash-attn == 2.7.4.post1
 # How to make datasets👽
 (TODO)
   
-KO-VDC 데이터셋의 일부 [subset]()을 `(TODO)`에서 확인하실 수 있습니다.🌞
+KO-VDC 데이터셋의 일부 [subset](https://github.com/Marker-Inc-Korea/KO-VLM-Benchmark/blob/main/data/Gemini_sampled_%EB%A9%80%ED%8B%B0%EB%AA%A8%EB%8B%AC_%EC%A0%95%EB%B3%B4%EA%B2%80%EC%83%89_%EB%8D%B0%EC%9D%B4%ED%84%B0_benchmark_200_subset.xlsx)을 `(TODO)`에서 확인하실 수 있습니다.🌞
 > 전체 문항에 대해서는, 데이터 유출 및 데이터 저작권 문제로 인해 공유가 어렵습니다🤫
 
 # How to evaluate🦾
