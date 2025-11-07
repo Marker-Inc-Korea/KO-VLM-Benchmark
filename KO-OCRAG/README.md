@@ -38,7 +38,7 @@ jiwer == 3.0.0
 그리고 각 데이터셋에 OCRAG 벤치마크를 위한 ground-truth caption을 만들기 위해, 총 **3차의 데이터 정제 과정**을 걸쳤습니다.
 - 1차: `gemini-2.5-pro`를 활용해 데이터 생성
 - 2차: `human editing`을 걸쳐 데이터 정제
-- 3차: `human editing`을 통해 `RAG parsing`에 적합한 데이터 제작
+- 3차: `human editing`을 통해 `RAG parsing`에 적합한 데이터 가공
 
 여기서 `RAG parsing` 데이터란, **텍스트에 대한 OCR ground-truth와 더불어서 이미지&도식에 대한 text description 포함하고 있는 데이터**를 말합니다.  
 추가적으로, `[image] ~ [/image]` token을 활용하여 이미지&도식에 대한 description 부분을 명시하여 `RAG parsing` 목적에 더 적합하도록 데이터를 가공하였습니다.   
