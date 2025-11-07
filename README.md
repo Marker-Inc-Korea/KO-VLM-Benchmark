@@ -107,7 +107,7 @@ RAG parsing에 적합한 description 생성 능력. (산업성🌟)
 | `Gukbap-Ovis2-34B` | 31.93 | NaN | NaN |
 | `gemma-3-12b-it` | 28.73 | 30.25 | NaN |
 | `Bllossom-AICA-5B` | 20.67 | 2.00 | NaN |
-> KO-OCRAG: `(WER+CER+rough2)/3`
+> KO-OCRAG: `{(1-WER)+(1-CER)+rough2}/3`
    
 # References
 - [AIHub - 시각화질의응답 데이터셋](https://www.aihub.or.kr/aihubdata/data/view.do?currMenu=115&topMenu=100&dataSetSn=71812)
