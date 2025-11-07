@@ -17,10 +17,9 @@ AIhub에서 제공한, (TODO)
 
 ```
 pytorch == 2.3.0 with cuda 12.1
-transformers == 4.51.3
-tokenizers == 0.21.1
+transformers == 4.57.1
 qwen-vl-utils[decord] == 0.0.8
-accelerate == 1.6.0
+accelerate
 flash-attn == 2.7.4.post1
 ```
 
