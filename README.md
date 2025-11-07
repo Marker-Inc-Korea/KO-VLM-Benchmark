@@ -5,7 +5,7 @@
 오픈소스 기여와 발전을 위해 **🔥KO-VLM Benchmark dataset🔱**를 제작하게 되었습니다.🤗  
   
 **AI-Hub**와 **공공데이터포털**에서는 한국어 기반의 Vision Question Answering (VQA) 데이터셋과 문서들을 풍부하게 제공하고 있습니다.🌎    
-저희는 AI-Hub에서 제공하는 2가지 데이터셋과 공동데이터포털에서 제공하는 여러가지 문서들을 수집 및 활용하여 **🔱KO-VLM Benchmark dataset** 제작하였습니다.    
+저희는 AI-Hub에서 제공하는 2가지 데이터셋과 공동데이터포털에서 제공하는 여러가지 문서들을 수집 및 활용하여 **🔱KO-VLM Benchmark dataset🔱** 제작하였습니다.    
 이를 활용해 국내/외 있는 Vision-Language Model (VLM)들의 한국어 문서 및 질문 이해 능력을 측정할 수 있습니다.😎   
 
 **KO-VLM Benchamrk dataset🔱**은 총 3가지 데이터셋으로 구성되어 있습니다.
