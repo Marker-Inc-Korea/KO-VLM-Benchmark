@@ -71,7 +71,7 @@
 ```
 실제 산업에서 활용되는 다양한 형식의 한국어 문서. (현실성 🌟)
 고해상도의 다양하고 복잡한 구조 및 풍부한 이미지/도식을 가진 한국어 문서. (다양성 🌟)
-RAG parsing에 적합한 description 생성 능력. (RAG 🌟)
+RAG parsing에 적합한 description 생성 능력. (산업성 🌟)
 ```
   
 # Results🌟
