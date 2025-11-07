@@ -1,5 +1,6 @@
 # Introduction: KO-VDC (visual context description choice)😋
 ![img2](../그림2.png)   
+![img2_1](../그림2_1.png)   
 AIhub에서 제공한, (TODO) 
 
 저희 KO-VDC 데이터셋에서는 아래와 같은 VLM 모델의 성능을 평가할 수 있습니다.🔥🔥
