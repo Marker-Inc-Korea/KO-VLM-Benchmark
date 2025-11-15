@@ -1,6 +1,6 @@
 # Introduction: KO-VDC (visual context description choice)😋
-![img2](../그림2.png)
-![img2_1](../그림2_1.png)
+![img2](../resources/그림2.png)
+![img2_1](../resources/그림2_1.png)
 AIhub에서 제공하는 멀티모달정보검색 데이터셋은 `다양한 표, 도식, 그래프 등등의 시각화 자료`를 포함한 한국어 문서에 대한 caption 정보를 가지고 있는 데이터셋입니다.
 저희는 해당 데이터셋을 통해, **주어진 표/도식/그래프 만으로 문서의 설명문을 얼마나 잘 생성할 수 있는지**를 평가하기 위해 **🔥KO-VDC (Visual context Description Choice)🔥** 데이터셋을 제작하게 되었습니다!
 

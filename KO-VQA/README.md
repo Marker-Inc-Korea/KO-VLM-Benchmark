@@ -1,5 +1,5 @@
 # Introduction: KO-VQA (visual question answering)😋
-![img](../그림1.png)
+![img](../resources/그림1.png)
 AIhub에서 제공한, 시각화질의응답 데이터셋은 `문서 내 그림, 표, 그래프, 다이어그램(인포그래픽 포함) 등 시각화 자료`에 대한 이해 기반 질의응답 데이터로 시각 문서를 이해하고 문서의 내용에 관련된 질문에 대한 응답을 수행할 수 있는 데이터입니다.
 저희는 기존에 **한국어 기반 VLM**을 평가할 수 있는 데이터셋이 많지 않다는 것을 인지하고, 이를 위해 **🔥KO-VQA (Vision Question Answering)🔥** 데이터를 제작하게 되었습니다.
 
