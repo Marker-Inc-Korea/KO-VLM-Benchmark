@@ -114,6 +114,14 @@ RAG parsing에 적합한 description 생성 능력. (산업성🌟)
 - [AIHub - 멀티모달정보검색 데이터셋](https://www.aihub.or.kr/aihubdata/data/view.do?currMenu=115&topMenu=100&dataSetSn=71813)
 - [공공데이터포털](https://www.data.go.kr/index.do)
 
+# 설치방법
+
+```bash
+make install
+```
+
+`uv` 환경을 사용합니다.
+
 # Acknowledgement
 This research was supported by the Korea Institute for Advancement of Technology (KIAT) grant funded by the Korean Government (MOTIE) (RS-2024-00416131, HRD Program for Industrial Innovation)
 
