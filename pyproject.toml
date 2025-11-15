@@ -1,0 +1,113 @@
+[project]
+name = "KO-VLM-Benchmark"
+version = "0.0.1"
+description = "실제 한국어 문서 데이터셋을 기반으로 만든 VLM 벤치마크 데이터셋"
+authors = [{ name = "NomaDamas", email = "vkehfdl1@gmail.com" }]
+readme = "README.md"
+keywords = ['python']
+requires-python = ">=3.10,<4.0"
+classifiers = [
+    "Intended Audience :: Developers",
+    "Programming Language :: Python",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+    "Topic :: Software Development :: Libraries :: Python Modules",
+]
+dependencies = [
+    "fire>=0.7.1",
+    "huggingface-hub>=0.36.0",
+    "pandas>=2.3.3",
+    "qwen-vl-utils>=0.0.14",
+    "torch>=2.9.1",
+    "transformers>=4.57.1",
+]
+
+[project.urls]
+Repository = "https://github.com/Marker-Inc-Korea/KO-VLM-Benchmark"
+
+[dependency-groups]
+dev = [
+    "pytest>=7.2.0",
+    "pre-commit>=2.20.0",
+    "tox-uv>=1.11.3",
+    "deptry>=0.23.0",
+    "ty>=0.0.1a16",
+    "ruff>=0.11.5",
+    "pytest-xdist>=3.8.0",
+]
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+packages = ["autorag_research"]
+
+[tool.ty.environment]
+python = "./.venv"
+python-version = "3.10"
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+
+[tool.ruff]
+target-version = "py310"
+line-length = 120
+fix = true
+
+[tool.ruff.lint]
+select = [
+    # flake8-2020
+    "YTT",
+    # flake8-bandit
+    "S",
+    # flake8-bugbear
+    "B",
+    # flake8-builtins
+    "A",
+    # flake8-comprehensions
+    "C4",
+    # flake8-debugger
+    "T10",
+    # flake8-simplify
+    "SIM",
+    # isort
+    "I",
+    # mccabe
+    "C90",
+    # pycodestyle
+    "E", "W",
+    # pyflakes
+    "F",
+    # pygrep-hooks
+    "PGH",
+    # pyupgrade
+    "UP",
+    # ruff
+    "RUF",
+    # tryceratops
+    "TRY",
+]
+ignore = [
+    # LineTooLong
+    "E501",
+    # DoNotAssignLambda
+    "E731",
+]
+
+[tool.ruff.lint.per-file-ignores]
+"tests/*" = ["S101"]
+
+[tool.ruff.format]
+preview = true
+
+[tool.coverage.report]
+skip_empty = true
+
+[tool.coverage.run]
+branch = true
+source = ["ko_vlm_benchmark"]
