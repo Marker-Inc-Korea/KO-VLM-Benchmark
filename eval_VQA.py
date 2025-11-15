@@ -17,7 +17,7 @@ from transformers import (
 )
 
 # 4.49.0 > // ovis2 possible
-from dataset.vqa_func import VQA_19_Eval
+from ko_vlm_benchmark.dataset.vqa_func import VQA_19_Eval
 
 """
 if v not in ALL_PARALLEL_STYLES:

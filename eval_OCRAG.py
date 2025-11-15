@@ -17,7 +17,7 @@ from transformers import (
 )
 
 # 4.49.0 > // ovis2 possible
-from dataset.ocrag_func import OCRAG_Eval
+from ko_vlm_benchmark.dataset.ocrag_func import OCRAG_Eval
 
 """
 if v not in ALL_PARALLEL_STYLES:
