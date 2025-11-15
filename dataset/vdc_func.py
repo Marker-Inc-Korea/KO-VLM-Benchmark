@@ -1,62 +1,47 @@
-import torch
-import os
-import re
 import random
-import pandas as pd
-
-from tqdm import tqdm
-from PIL import Image
 from io import BytesIO
 
+import torch
+from PIL import Image
 from qwen_vl_utils import process_vision_info
+from tqdm import tqdm
 
-#from llava.mm_utils import tokenizer_image_token, process_images
+# from llava.mm_utils import tokenizer_image_token, process_images
+
 
 def check_options(options):
-    
+
     options_prompt = []
     for i in range(len(options)):
-        
         idx = options.index[i]
         row = options[i]
-        #print(idx, row)
-        
+        # print(idx, row)
+
         if row is not None:
-            prompt = idx + '. ' + row.strip()
+            prompt = idx + ". " + row.strip()
             options_prompt.append(prompt)
-    
+
     return options_prompt
 
-def read_image(bytes):
+
+def read_image(_bytes):
     try:
-        image = Image.open(BytesIO(bytes))
-        return image
-    
+        image = Image.open(BytesIO(_bytes))
     except Exception as e:
-        raise Exception(e)
+        raise ValueError(e) from e
+    else:
+        return image
 
 
-def VDC_Eval(eval_dataset, 
-            model,
-            dataset_path,
-            text_tokenizer, 
-            visual_tokenizer,
-            category,
-            thinking_mode=False):
-    
+def VDC_Eval(eval_dataset, model, dataset_path, text_tokenizer, visual_tokenizer, category, thinking_mode=False):
+
     type1_correct_count = 0
     type2_correct_count = 0
     print(eval_dataset.columns)
 
-    text_sample = pd.DataFrame(columns=['id', 'type', 'Modified_image_path', 'text_input'])
-
     # TODO: eval code
-    if category == 'gemma3':
-        
-        domain_list = os.listdir(dataset_path)
-        
+    if category == "gemma3":
         for i in tqdm(range(len(eval_dataset))):
-            
             domain = eval_dataset.loc[i].doc_type.strip()
             Gemini_GT_1 = eval_dataset.loc[i].Gemini_GT_1.strip()
             Gemini_GT_2 = eval_dataset.loc[i].Gemini_GT_2.strip()
@@ -69,85 +54,65 @@ def VDC_Eval(eval_dataset,
             image = Image.open(img_path)
 
             ## shuffle
-            alpha_list = ['A', 'B', 'C', 'D']
-            index_shuffle = random.sample([1,2,3,4], 4)
-            alpha_num = 0
-            choices = ''
-            gt_alpha = ''
-            for index in index_shuffle:
+            alpha_list = ["A", "B", "C", "D"]
+            index_shuffle = random.sample([1, 2, 3, 4], 4)
+            choices = ""
+            gt_alpha = ""
+            for alpha_num, index in enumerate(index_shuffle):
                 if index == 1:
-                    choices += f'{alpha_list[alpha_num]}. {Gemini_GT_1}\n\n'
+                    choices += f"{alpha_list[alpha_num]}. {Gemini_GT_1}\n\n"
                     gt_alpha = alpha_list[alpha_num]
 
                 elif index == 2:
-                    choices += f'{alpha_list[alpha_num]}. {Gemini_GT_2}\n\n'
+                    choices += f"{alpha_list[alpha_num]}. {Gemini_GT_2}\n\n"
 
                 elif index == 3:
-                    choices += f'{alpha_list[alpha_num]}. {Gemini_GT_3}\n\n'
+                    choices += f"{alpha_list[alpha_num]}. {Gemini_GT_3}\n\n"
 
                 elif index == 4:
-                    choices += f'{alpha_list[alpha_num]}. {Gemini_GT_4}\n\n'
-
-                alpha_num += 1
-
+                    choices += f"{alpha_list[alpha_num]}. {Gemini_GT_4}\n\n"
 
             ## Make query
-            query = f'다음 주어진 [A, B, C, D] 보기 중 이미지에 있는 도식 정보를 가장 잘 설명하는 것을 고르시오. 답변은 무조건 알파벳이 먼저 나와야합니다.\n\n<보기>\n{choices}# 가장 적절한 설명문:'
-            #print(query)
-            
+            query = f"다음 주어진 [A, B, C, D] 보기 중 이미지에 있는 도식 정보를 가장 잘 설명하는 것을 고르시오. 답변은 무조건 알파벳이 먼저 나와야합니다.\n\n<보기>\n{choices}# 가장 적절한 설명문:"
+            # print(query)
+
             # templates
             messages = [
-                {
-                    "role": "system",
-                    "content": [{"type": "text", "text": "You are a helpful assistant."}]
-                },
-                {
-                    "role": "user",
-                    "content": [
-                        {"type": "image", "url": img_path},
-                        {"type": "text", "text": query}
-                    ]
-                }
+                {"role": "system", "content": [{"type": "text", "text": "You are a helpful assistant."}]},
+                {"role": "user", "content": [{"type": "image", "url": img_path}, {"type": "text", "text": query}]},
             ]
 
             ## inference
-            inputs = text_tokenizer.apply_chat_template(messages, 
-                                                    tokenize=True, 
-                                                    return_dict=True, 
-                                                    add_generation_prompt=True,
-                                                    return_tensors='pt').to("cuda")
+            inputs = text_tokenizer.apply_chat_template(
+                messages, tokenize=True, return_dict=True, add_generation_prompt=True, return_tensors="pt"
+            ).to("cuda")
             input_len = inputs["input_ids"].shape[-1]
-            
+
             with torch.inference_mode():
                 generation = model.generate(**inputs, max_new_tokens=1024, do_sample=False, temperature=None)
                 generation = generation[0][input_len:]
 
             output = text_tokenizer.decode(generation, skip_special_tokens=True)
-            print(f'Output: {output}')
+            print(f"Output: {output}")
             print("# GT alpha:", gt_alpha)
-            
+
             ## TODO: calculate accuracy
-            pred_alpha = output.strip()[0] # alphabet
+            pred_alpha = output.strip()[0]  # alphabet
 
             if gt_alpha.lower() in pred_alpha.lower():
-                if domain == '보고서':
+                if domain == "보고서":
                     type1_correct_count += 1
-                elif domain == '보도자료':
+                elif domain == "보도자료":
                     type2_correct_count += 1
-                else: 
-                    raise Exception("?????? doc_type:", domain)
+                else:
+                    raise ValueError("?????? doc_type:", domain)
 
-                print("Correct count:", type1_correct_count+type2_correct_count)
-            
-            #break
+                print("Correct count:", type1_correct_count + type2_correct_count)
 
+            # break
 
-    elif category == 'ovis':
-
-        domain_list = os.listdir(dataset_path)
-        
+    elif category == "ovis":
         for i in tqdm(range(len(eval_dataset))):
-            
             domain = eval_dataset.loc[i].doc_type.strip()
             Gemini_GT_1 = eval_dataset.loc[i].Gemini_GT_1.strip()
             Gemini_GT_2 = eval_dataset.loc[i].Gemini_GT_2.strip()
@@ -160,30 +125,29 @@ def VDC_Eval(eval_dataset,
             image = Image.open(img_path)
 
             ## shuffle
-            alpha_list = ['A', 'B', 'C', 'D']
-            index_shuffle = random.sample([1,2,3,4], 4)
+            alpha_list = ["A", "B", "C", "D"]
+            index_shuffle = random.sample([1, 2, 3, 4], 4)
             alpha_num = 0
-            choices = ''
-            gt_alpha = ''
+            choices = ""
+            gt_alpha = ""
             for index in index_shuffle:
                 if index == 1:
-                    choices += f'{alpha_list[alpha_num]}. {Gemini_GT_1}\n\n'
+                    choices += f"{alpha_list[alpha_num]}. {Gemini_GT_1}\n\n"
                     gt_alpha = alpha_list[alpha_num]
 
                 elif index == 2:
-                    choices += f'{alpha_list[alpha_num]}. {Gemini_GT_2}\n\n'
+                    choices += f"{alpha_list[alpha_num]}. {Gemini_GT_2}\n\n"
 
                 elif index == 3:
-                    choices += f'{alpha_list[alpha_num]}. {Gemini_GT_3}\n\n'
+                    choices += f"{alpha_list[alpha_num]}. {Gemini_GT_3}\n\n"
 
                 elif index == 4:
-                    choices += f'{alpha_list[alpha_num]}. {Gemini_GT_4}\n\n'
+                    choices += f"{alpha_list[alpha_num]}. {Gemini_GT_4}\n\n"
 
                 alpha_num += 1
 
-
             ## Make query
-            query = f'<image>\n다음 주어진 [A, B, C, D] 보기 중 이미지에 있는 도식 정보를 가장 잘 설명하는 것을 고르시오. 답변은 무조건 알파벳이 먼저 나와야합니다.\n\n<보기>\n{choices}# 가장 적절한 설명문:'
+            query = f"<image>\n다음 주어진 [A, B, C, D] 보기 중 이미지에 있는 도식 정보를 가장 잘 설명하는 것을 고르시오. 답변은 무조건 알파벳이 먼저 나와야합니다.\n\n<보기>\n{choices}# 가장 적절한 설명문:"
             print(query)
 
             ## format conversation
@@ -192,45 +156,43 @@ def VDC_Eval(eval_dataset,
             input_ids = input_ids.unsqueeze(0).to(device=model.device)
             attention_mask = attention_mask.unsqueeze(0).to(device=model.device)
             pixel_values = [pixel_values.to(dtype=visual_tokenizer.dtype, device=visual_tokenizer.device)]
-            
+
             ## generate output
             with torch.inference_mode():
-                gen_kwargs = dict(
-                    max_new_tokens=1024,
-                    do_sample=False,
-                    top_p=None,
-                    top_k=None,
-                    temperature=None,
-                    repetition_penalty=None,
-                    eos_token_id=model.generation_config.eos_token_id,
-                    pad_token_id=text_tokenizer.pad_token_id,
-                    use_cache=True
-                )
-                
-                output_ids = model.generate(input_ids, pixel_values=pixel_values, attention_mask=attention_mask, **gen_kwargs)[0]
+                gen_kwargs = {
+                    "max_new_tokens": 1024,
+                    "do_sample": False,
+                    "top_p": None,
+                    "top_k": None,
+                    "temperature": None,
+                    "repetition_penalty": None,
+                    "eos_token_id": model.generation_config.eos_token_id,
+                    "pad_token_id": text_tokenizer.pad_token_id,
+                    "use_cache": True,
+                }
+
+                output_ids = model.generate(
+                    input_ids, pixel_values=pixel_values, attention_mask=attention_mask, **gen_kwargs
+                )[0]
                 output = text_tokenizer.decode(output_ids, skip_special_tokens=True)
-                print(f'Output: {output}')
+                print(f"Output: {output}")
                 print("# GT alpha:", gt_alpha)
-            
+
             ## TODO: calculate accuracy
-            pred_alpha = output.strip()[0] # alphabet
+            pred_alpha = output.strip()[0]  # alphabet
 
             if gt_alpha.lower() in pred_alpha.lower():
-                if domain == '보고서':
+                if domain == "보고서":
                     type1_correct_count += 1
-                elif domain == '보도자료':
+                elif domain == "보도자료":
                     type2_correct_count += 1
-                else: 
-                    raise Exception("?????? doc_type:", domain)
+                else:
+                    raise ValueError("?????? doc_type:", domain)
 
-                print("Correct count:", type1_correct_count+type2_correct_count)
+                print("Correct count:", type1_correct_count + type2_correct_count)
 
-
-    elif category == 'bllossom':
-        domain_list = os.listdir(dataset_path)
-        
+    elif category == "bllossom":
         for i in tqdm(range(len(eval_dataset))):
-            
             domain = eval_dataset.loc[i].doc_type.strip()
             Gemini_GT_1 = eval_dataset.loc[i].Gemini_GT_1.strip()
             Gemini_GT_2 = eval_dataset.loc[i].Gemini_GT_2.strip()
@@ -243,81 +205,73 @@ def VDC_Eval(eval_dataset,
             image = Image.open(img_path)
 
             ## shuffle
-            alpha_list = ['A', 'B', 'C', 'D']
-            index_shuffle = random.sample([1,2,3,4], 4)
-            alpha_num = 0
-            choices = ''
-            gt_alpha = ''
-            for index in index_shuffle:
+            alpha_list = ["A", "B", "C", "D"]
+            index_shuffle = random.sample([1, 2, 3, 4], 4)
+            choices = ""
+            gt_alpha = ""
+            for alpha_num, index in enumerate(index_shuffle):
                 if index == 1:
-                    choices += f'{alpha_list[alpha_num]}. {Gemini_GT_1}\n\n'
+                    choices += f"{alpha_list[alpha_num]}. {Gemini_GT_1}\n\n"
                     gt_alpha = alpha_list[alpha_num]
 
                 elif index == 2:
-                    choices += f'{alpha_list[alpha_num]}. {Gemini_GT_2}\n\n'
+                    choices += f"{alpha_list[alpha_num]}. {Gemini_GT_2}\n\n"
 
                 elif index == 3:
-                    choices += f'{alpha_list[alpha_num]}. {Gemini_GT_3}\n\n'
+                    choices += f"{alpha_list[alpha_num]}. {Gemini_GT_3}\n\n"
 
                 elif index == 4:
-                    choices += f'{alpha_list[alpha_num]}. {Gemini_GT_4}\n\n'
+                    choices += f"{alpha_list[alpha_num]}. {Gemini_GT_4}\n\n"
 
-                alpha_num += 1
-            
             ## Make query
-            query = f'다음 주어진 [A, B, C, D] 보기 중 이미지에 있는 도식 정보를 가장 잘 설명하는 것을 고르시오. 답변은 무조건 알파벳이 먼저 나와야합니다.\n\n<보기>\n{choices}# 가장 적절한 설명문:'
-            #print(query)
-            
+            query = f"다음 주어진 [A, B, C, D] 보기 중 이미지에 있는 도식 정보를 가장 잘 설명하는 것을 고르시오. 답변은 무조건 알파벳이 먼저 나와야합니다.\n\n<보기>\n{choices}# 가장 적절한 설명문:"
+            # print(query)
+
             messages = [
-                {'role': 'user','content': [
-                    {'type':'image'},
-                    {'type': 'text','text': query}
-                    ]},
-                ]
+                {"role": "user", "content": [{"type": "image"}, {"type": "text", "text": query}]},
+            ]
 
             ## inference
-            input_text = text_tokenizer.apply_chat_template(messages,
-                                                            tokenize=False,
-                                                            add_generation_prompt=True)
-            
+            input_text = text_tokenizer.apply_chat_template(messages, tokenize=False, add_generation_prompt=True)
+
             inputs = text_tokenizer(
                 image,
                 input_text,
                 add_special_tokens=False,
                 return_tensors="pt",
             ).to(model.device)
-            
-            ## generate output
-            output = model.generate(**inputs, 
-                                    max_new_tokens=1024,
-                                    temperature=None,
-                                    eos_token_id=text_tokenizer.tokenizer.convert_tokens_to_ids('<|eot_id|>'),
-                                    use_cache=True) # If False, 60 hours
-            #print(text_tokenizer.decode(output[0]))
-            
-            output = text_tokenizer.decode(output[0])[len(input_text):].strip()
 
-            print(f'Output: {output}')
+            ## generate output
+            output = model.generate(
+                **inputs,
+                max_new_tokens=1024,
+                temperature=None,
+                eos_token_id=text_tokenizer.tokenizer.convert_tokens_to_ids("<|eot_id|>"),
+                use_cache=True,
+            )  # If False, 60 hours
+            # print(text_tokenizer.decode(output[0]))
+
+            output = text_tokenizer.decode(output[0])[len(input_text) :].strip()
+
+            print(f"Output: {output}")
             print("# GT alpha:", gt_alpha)
-            
+
             ## TODO: calculate accuracy
-            pred_alpha = output.strip()[0] # alphabet
+            pred_alpha = output.strip()[0]  # alphabet
 
             if gt_alpha.lower() in pred_alpha.lower():
-                if domain == '보고서':
+                if domain == "보고서":
                     type1_correct_count += 1
-                elif domain == '보도자료':
+                elif domain == "보도자료":
                     type2_correct_count += 1
-                else: 
-                    raise Exception("?????? doc_type:", domain)
+                else:
+                    raise ValueError("?????? doc_type:", domain)
 
-                print("Correct count:", type1_correct_count+type2_correct_count)
-            
-            #break
+                print("Correct count:", type1_correct_count + type2_correct_count)
 
-    elif category == 'VARCO-2.0':
-        domain_list = os.listdir(dataset_path)
+            # break
 
+    elif category == "VARCO-2.0":
         for i in tqdm(range(len(eval_dataset))):
             domain = eval_dataset.loc[i].doc_type.strip()
             Gemini_GT_1 = eval_dataset.loc[i].Gemini_GT_1.strip()
@@ -328,33 +282,32 @@ def VDC_Eval(eval_dataset,
 
             ## image load
             img_path = dataset_path + domain + "/" + img_path
-            image = Image.open(img_path)
 
             ## shuffle
-            alpha_list = ['A', 'B', 'C', 'D']
-            index_shuffle = random.sample([1,2,3,4], 4)
+            alpha_list = ["A", "B", "C", "D"]
+            index_shuffle = random.sample([1, 2, 3, 4], 4)
             alpha_num = 0
-            choices = ''
-            gt_alpha = ''
+            choices = ""
+            gt_alpha = ""
             for index in index_shuffle:
                 if index == 1:
-                    choices += f'{alpha_list[alpha_num]}. {Gemini_GT_1}\n\n'
+                    choices += f"{alpha_list[alpha_num]}. {Gemini_GT_1}\n\n"
                     gt_alpha = alpha_list[alpha_num]
 
                 elif index == 2:
-                    choices += f'{alpha_list[alpha_num]}. {Gemini_GT_2}\n\n'
+                    choices += f"{alpha_list[alpha_num]}. {Gemini_GT_2}\n\n"
 
                 elif index == 3:
-                    choices += f'{alpha_list[alpha_num]}. {Gemini_GT_3}\n\n'
+                    choices += f"{alpha_list[alpha_num]}. {Gemini_GT_3}\n\n"
 
                 elif index == 4:
-                    choices += f'{alpha_list[alpha_num]}. {Gemini_GT_4}\n\n'
+                    choices += f"{alpha_list[alpha_num]}. {Gemini_GT_4}\n\n"
 
                 alpha_num += 1
 
             ## Make query
-            text = f'다음 주어진 [A, B, C, D] 보기 중 이미지에 있는 도식 정보를 가장 잘 설명하는 것을 고르시오. 답변은 무조건 알파벳이 먼저 나와야합니다.\n\n<보기>\n{choices}# 가장 적절한 설명문:'
-            #print(text)
+            text = f"다음 주어진 [A, B, C, D] 보기 중 이미지에 있는 도식 정보를 가장 잘 설명하는 것을 고르시오. 답변은 무조건 알파벳이 먼저 나와야합니다.\n\n<보기>\n{choices}# 가장 적절한 설명문:"
+            # print(text)
             query = [
                 {
                     "role": "user",
@@ -367,11 +320,7 @@ def VDC_Eval(eval_dataset,
 
             ## preprocessing
             inputs = text_tokenizer.apply_chat_template(
-                query,
-                add_generation_prompt=True,
-                tokenize=True,
-                return_dict=True,
-                return_tensors="pt"
+                query, add_generation_prompt=True, tokenize=True, return_dict=True, return_tensors="pt"
             ).to(model.device, torch.float16)
 
             ## generation
@@ -384,33 +333,30 @@ def VDC_Eval(eval_dataset,
                     use_cache=True,
                 )
             generate_ids_trimmed = [
-                out_ids[len(in_ids) :] for in_ids, out_ids in zip(inputs.input_ids, output_ids)
+                out_ids[len(in_ids) :] for in_ids, out_ids in zip(inputs.input_ids, output_ids, strict=True)
             ]
             output = text_tokenizer.decode(generate_ids_trimmed[0], skip_special_tokens=True)
 
-            print(f'Output:\n{output}')
+            print(f"Output:\n{output}")
             print("# GT alpha:", gt_alpha)
 
             ## TODO: calculate accuracy
-            pred_alpha = output.strip()[0] # alphabet
+            pred_alpha = output.strip()[0]  # alphabet
 
             if gt_alpha.lower() in pred_alpha.lower():
-                if domain == '보고서':
+                if domain == "보고서":
                     type1_correct_count += 1
-                elif domain == '보도자료':
+                elif domain == "보도자료":
                     type2_correct_count += 1
-                else: 
-                    raise Exception("?????? doc_type:", domain)
+                else:
+                    raise ValueError("?????? doc_type:", domain)
 
-                print("Correct count:", type1_correct_count+type2_correct_count)
-            
-            #break
-    
-    elif category == 'VARCO':
-        domain_list = os.listdir(dataset_path)
+                print("Correct count:", type1_correct_count + type2_correct_count)
 
+            # break
+
+    elif category == "VARCO":
         for i in tqdm(range(len(eval_dataset))):
-            
             domain = eval_dataset.loc[i].doc_type.strip()
             Gemini_GT_1 = eval_dataset.loc[i].Gemini_GT_1.strip()
             Gemini_GT_2 = eval_dataset.loc[i].Gemini_GT_2.strip()
@@ -423,30 +369,30 @@ def VDC_Eval(eval_dataset,
             image = Image.open(img_path)
 
             ## shuffle
-            alpha_list = ['A', 'B', 'C', 'D']
-            index_shuffle = random.sample([1,2,3,4], 4)
+            alpha_list = ["A", "B", "C", "D"]
+            index_shuffle = random.sample([1, 2, 3, 4], 4)
             alpha_num = 0
-            choices = ''
-            gt_alpha = ''
+            choices = ""
+            gt_alpha = ""
             for index in index_shuffle:
                 if index == 1:
-                    choices += f'{alpha_list[alpha_num]}. {Gemini_GT_1}\n\n'
+                    choices += f"{alpha_list[alpha_num]}. {Gemini_GT_1}\n\n"
                     gt_alpha = alpha_list[alpha_num]
 
                 elif index == 2:
-                    choices += f'{alpha_list[alpha_num]}. {Gemini_GT_2}\n\n'
+                    choices += f"{alpha_list[alpha_num]}. {Gemini_GT_2}\n\n"
 
                 elif index == 3:
-                    choices += f'{alpha_list[alpha_num]}. {Gemini_GT_3}\n\n'
+                    choices += f"{alpha_list[alpha_num]}. {Gemini_GT_3}\n\n"
 
                 elif index == 4:
-                    choices += f'{alpha_list[alpha_num]}. {Gemini_GT_4}\n\n'
+                    choices += f"{alpha_list[alpha_num]}. {Gemini_GT_4}\n\n"
 
                 alpha_num += 1
 
             ## Make query
-            text = f'다음 주어진 [A, B, C, D] 보기 중 이미지에 있는 도식 정보를 가장 잘 설명하는 것을 고르시오. 답변은 무조건 알파벳이 먼저 나와야합니다.\n\n<보기>\n{choices}# 가장 적절한 설명문:'
-            #print(text)
+            text = f"다음 주어진 [A, B, C, D] 보기 중 이미지에 있는 도식 정보를 가장 잘 설명하는 것을 고르시오. 답변은 무조건 알파벳이 먼저 나와야합니다.\n\n<보기>\n{choices}# 가장 적절한 설명문:"
+            # print(text)
 
             query = [
                 {
@@ -460,10 +406,10 @@ def VDC_Eval(eval_dataset,
 
             ## preprocessing
             prompt = text_tokenizer.apply_chat_template(query, add_generation_prompt=True)
-            
-            EOS_TOKEN = "<|im_end|>"
-            inputs = text_tokenizer(images=image, text=prompt, return_tensors='pt').to(torch.float16).to(model.device)
-            
+
+            EOS_TOKEN = "<|im_end|>"  # noqa: S105
+            inputs = text_tokenizer(images=image, text=prompt, return_tensors="pt").to(torch.float16).to(model.device)
+
             ## generation
             with torch.inference_mode():
                 output_ids = model.generate(
@@ -474,36 +420,32 @@ def VDC_Eval(eval_dataset,
                     use_cache=True,
                 )
 
-            output = text_tokenizer.batch_decode(output_ids[0][inputs.input_ids.shape[1]:])
-            output = ''.join(output).strip()
+            output = text_tokenizer.batch_decode(output_ids[0][inputs.input_ids.shape[1] :])
+            output = "".join(output).strip()
             if output.endswith(EOS_TOKEN):
                 output = output[: -len(EOS_TOKEN)]
 
-            print(f'Output:\n{output}')
+            print(f"Output:\n{output}")
             print("# GT alpha:", gt_alpha)
 
             ## TODO: calculate accuracy
-            pred_alpha = output.strip()[0] # alphabet
+            pred_alpha = output.strip()[0]  # alphabet
 
             if gt_alpha.lower() in pred_alpha.lower():
-                if domain == '보고서':
+                if domain == "보고서":
                     type1_correct_count += 1
-                elif domain == '보도자료':
+                elif domain == "보도자료":
                     type2_correct_count += 1
-                else: 
-                    raise Exception("?????? doc_type:", domain)
+                else:
+                    raise ValueError("?????? doc_type:", domain)
 
-                print("Correct count:", type1_correct_count+type2_correct_count)
-            
-            #break
-            
-    
+                print("Correct count:", type1_correct_count + type2_correct_count)
+
+            # break
+
     # TODO: make qwen2.5 eval pipeline
-    elif category == 'qwen2.5':
-        domain_list = os.listdir(dataset_path)
-
+    elif category == "qwen2.5":
         for i in tqdm(range(len(eval_dataset))):
-            
             domain = eval_dataset.loc[i].doc_type.strip()
             Gemini_GT_1 = eval_dataset.loc[i].Gemini_GT_1.strip()
             Gemini_GT_2 = eval_dataset.loc[i].Gemini_GT_2.strip()
@@ -515,34 +457,30 @@ def VDC_Eval(eval_dataset,
             img_path = dataset_path + domain + "/" + img_path
 
             ## shuffle
-            alpha_list = ['A', 'B', 'C', 'D']
-            #alpha_list = ['ⓐ', 'ⓑ', 'ⓒ', 'ⓓ']
-            index_shuffle = random.sample([1,2,3,4], 4)
-            #index_shuffle = [1,2,3,4]
-            alpha_num = 0
-            choices = ''
-            gt_alpha = ''
-            for index in index_shuffle:
+            alpha_list = ["A", "B", "C", "D"]
+            # alpha_list = ['ⓐ', 'ⓑ', 'ⓒ', 'ⓓ']
+            index_shuffle = random.sample([1, 2, 3, 4], 4)
+            # index_shuffle = [1,2,3,4]
+            choices = ""
+            gt_alpha = ""
+            for alpha_num, index in enumerate(index_shuffle):
                 if index == 1:
-                    choices += f'{alpha_list[alpha_num]}. {Gemini_GT_1}\n\n'
+                    choices += f"{alpha_list[alpha_num]}. {Gemini_GT_1}\n\n"
                     gt_alpha = alpha_list[alpha_num]
 
                 elif index == 2:
-                    choices += f'{alpha_list[alpha_num]}. {Gemini_GT_2}\n\n'
+                    choices += f"{alpha_list[alpha_num]}. {Gemini_GT_2}\n\n"
 
                 elif index == 3:
-                    choices += f'{alpha_list[alpha_num]}. {Gemini_GT_3}\n\n'
+                    choices += f"{alpha_list[alpha_num]}. {Gemini_GT_3}\n\n"
 
                 elif index == 4:
-                    choices += f'{alpha_list[alpha_num]}. {Gemini_GT_4}\n\n'
-
-                alpha_num += 1
-            
+                    choices += f"{alpha_list[alpha_num]}. {Gemini_GT_4}\n\n"
 
             ## prompt
-            query = f'다음 주어진 [A, B, C, D] 보기 중 이미지에 있는 도식 정보를 가장 잘 설명하는 것을 고르시오. 답변은 무조건 알파벳이 먼저 나와야합니다.\n\n<보기>\n{choices}# 가장 적절한 설명문:'
-            #query = f'다음 주어진 [ⓐ, ⓑ, ⓒ, ⓓ] 선택지 중 이미지에 있는 도식 정보를 가장 잘 설명하는 것을 고르시오. 답변은 무조건 알파벳 기호가 먼저 나와야합니다.\n\n{choices}\n가장 적절한 설명문:'
-            #print(query)
+            query = f"다음 주어진 [A, B, C, D] 보기 중 이미지에 있는 도식 정보를 가장 잘 설명하는 것을 고르시오. 답변은 무조건 알파벳이 먼저 나와야합니다.\n\n<보기>\n{choices}# 가장 적절한 설명문:"
+            # query = f'다음 주어진 [ⓐ, ⓑ, ⓒ, ⓓ] 선택지 중 이미지에 있는 도식 정보를 가장 잘 설명하는 것을 고르시오. 답변은 무조건 알파벳 기호가 먼저 나와야합니다.\n\n{choices}\n가장 적절한 설명문:'
+            # print(query)
 
             ## Make query
             messages = [
@@ -559,9 +497,7 @@ def VDC_Eval(eval_dataset,
             ]
 
             ## prepare input
-            text = text_tokenizer.apply_chat_template(
-                messages, tokenize=False, add_generation_prompt=True
-            )
+            text = text_tokenizer.apply_chat_template(messages, tokenize=False, add_generation_prompt=True)
             image_inputs, video_inputs = process_vision_info(messages)
             inputs = text_tokenizer(
                 text=[text],
@@ -571,43 +507,41 @@ def VDC_Eval(eval_dataset,
                 return_tensors="pt",
             )
             inputs = inputs.to("cuda")
-            
+
             ## generate
             with torch.inference_mode():
                 generated_ids = model.generate(**inputs, max_new_tokens=1024, do_sample=False, temperature=None)
                 generated_ids_trimmed = [
-                    out_ids[len(in_ids) :] for in_ids, out_ids in zip(inputs.input_ids, generated_ids)
+                    out_ids[len(in_ids) :] for in_ids, out_ids in zip(inputs.input_ids, generated_ids, strict=True)
                 ]
                 output = text_tokenizer.batch_decode(
                     generated_ids_trimmed, skip_special_tokens=True, clean_up_tokenization_spaces=False
                 )[0]
 
-            print(f'Output: {output}')
+            print(f"Output: {output}")
             print("# GT alpha:", gt_alpha)
 
             ## TODO: calculate accuracy
-            pred_alpha = output.strip()[0] # alphabet
+            pred_alpha = output.strip()[0]  # alphabet
 
             if gt_alpha.lower() in pred_alpha.lower():
-                if domain == '보고서':
+                if domain == "보고서":
                     type1_correct_count += 1
-                elif domain == '보도자료':
+                elif domain == "보도자료":
                     type2_correct_count += 1
-                else: 
-                    raise Exception("?????? doc_type:", domain)
+                else:
+                    raise ValueError("?????? doc_type:", domain)
 
-                print("Correct count:", type1_correct_count+type2_correct_count)
-            
-            #break
+                print("Correct count:", type1_correct_count + type2_correct_count)
+
+            # break
 
     # TODO: make qwen2.5 eval pipeline
-    elif category == 'ovis2.5':
-        domain_list = os.listdir(dataset_path)
-        enable_thinking = thinking_mode # thinking mode
-        enable_thinking_budget = True # Only effective if enable_thinking is True.
+    elif category == "ovis2.5":
+        enable_thinking = thinking_mode  # thinking mode
+        enable_thinking_budget = True  # Only effective if enable_thinking is True.
 
         for i in tqdm(range(len(eval_dataset))):
-            
             domain = eval_dataset.loc[i].doc_type.strip()
             Gemini_GT_1 = eval_dataset.loc[i].Gemini_GT_1.strip()
             Gemini_GT_2 = eval_dataset.loc[i].Gemini_GT_2.strip()
@@ -620,57 +554,53 @@ def VDC_Eval(eval_dataset,
             image = Image.open(img_path)
 
             ## shuffle
-            alpha_list = ['A', 'B', 'C', 'D']
-            index_shuffle = random.sample([1,2,3,4], 4)
-            alpha_num = 0
-            choices = ''
-            gt_alpha = ''
-            for index in index_shuffle:
+            alpha_list = ["A", "B", "C", "D"]
+            index_shuffle = random.sample([1, 2, 3, 4], 4)
+            choices = ""
+            gt_alpha = ""
+            for alpha_num, index in enumerate(index_shuffle):
                 if index == 1:
-                    choices += f'{alpha_list[alpha_num]}. {Gemini_GT_1}\n\n'
+                    choices += f"{alpha_list[alpha_num]}. {Gemini_GT_1}\n\n"
                     gt_alpha = alpha_list[alpha_num]
 
                 elif index == 2:
-                    choices += f'{alpha_list[alpha_num]}. {Gemini_GT_2}\n\n'
+                    choices += f"{alpha_list[alpha_num]}. {Gemini_GT_2}\n\n"
 
                 elif index == 3:
-                    choices += f'{alpha_list[alpha_num]}. {Gemini_GT_3}\n\n'
+                    choices += f"{alpha_list[alpha_num]}. {Gemini_GT_3}\n\n"
 
                 elif index == 4:
-                    choices += f'{alpha_list[alpha_num]}. {Gemini_GT_4}\n\n'
-
-                alpha_num += 1
-            
+                    choices += f"{alpha_list[alpha_num]}. {Gemini_GT_4}\n\n"
 
             ## prompt
-            query = f'다음 주어진 [A, B, C, D] 보기 중 이미지에 있는 도식 정보를 가장 잘 설명하는 것을 고르시오. 답변은 무조건 알파벳이 먼저 나와야합니다.\n\n<보기>\n{choices}# 가장 적절한 설명문:'
-            #print(query)
+            query = f"다음 주어진 [A, B, C, D] 보기 중 이미지에 있는 도식 정보를 가장 잘 설명하는 것을 고르시오. 답변은 무조건 알파벳이 먼저 나와야합니다.\n\n<보기>\n{choices}# 가장 적절한 설명문:"
+            # print(query)
 
-            messages = [{
-                "role": "user",
-                "content": [
-                    {"type": "image", "image": image},
-                    {"type": "text", "text": query},
-                ],
-            }]
+            messages = [
+                {
+                    "role": "user",
+                    "content": [
+                        {"type": "image", "image": image},
+                        {"type": "text", "text": query},
+                    ],
+                }
+            ]
 
             ## prepare input
             input_ids, pixel_values, grid_thws = model.preprocess_inputs(
-                messages=messages,
-                add_generation_prompt=True,
-                enable_thinking=enable_thinking
+                messages=messages, add_generation_prompt=True, enable_thinking=enable_thinking
             )
             input_ids = input_ids.cuda()
             pixel_values = pixel_values.cuda() if pixel_values is not None else None
             grid_thws = grid_thws.cuda() if grid_thws is not None else None
-            
+
             # Total tokens for thinking + answer. Ensure: max_new_tokens > thinking_budget + 25
             if enable_thinking:
                 max_new_tokens = 2048
                 thinking_budget = 1024
             else:
                 max_new_tokens = 1024
-                thinking_budget = 1024 # ignore.
+                thinking_budget = 1024  # ignore.
 
             ## generate
             with torch.inference_mode():
@@ -688,33 +618,31 @@ def VDC_Eval(eval_dataset,
 
                 if enable_thinking:
                     # <think> ~ </think> answer
-                    output = output[output.find('</think>')+len('</think>'):].strip()
+                    output = output[output.find("</think>") + len("</think>") :].strip()
                 else:
                     pass
 
-            print(f'Output: {output}')
+            print(f"Output: {output}")
             print("# GT alpha:", gt_alpha)
 
             ## TODO: calculate accuracy
-            pred_alpha = output.strip()[0] # alphabet
+            pred_alpha = output.strip()[0]  # alphabet
 
             if gt_alpha.lower() in pred_alpha.lower():
-                if domain == '보고서':
+                if domain == "보고서":
                     type1_correct_count += 1
-                elif domain == '보도자료':
+                elif domain == "보도자료":
                     type2_correct_count += 1
-                else: 
-                    raise Exception("?????? doc_type:", domain)
+                else:
+                    raise ValueError("?????? doc_type:", domain)
 
-                print("Correct count:", type1_correct_count+type2_correct_count)
-            
-            #break
+                print("Correct count:", type1_correct_count + type2_correct_count)
+
+            # break
 
     # TODO: make qwen3 eval pipeline
-    elif category == 'qwen3':
-        domain_list = os.listdir(dataset_path)
+    elif category == "qwen3":
         for i in tqdm(range(len(eval_dataset))):
-            
             domain = eval_dataset.loc[i].doc_type.strip()
             Gemini_GT_1 = eval_dataset.loc[i].Gemini_GT_1.strip()
             Gemini_GT_2 = eval_dataset.loc[i].Gemini_GT_2.strip()
@@ -726,34 +654,30 @@ def VDC_Eval(eval_dataset,
             img_path = dataset_path + domain + "/" + img_path
 
             ## shuffle
-            alpha_list = ['A', 'B', 'C', 'D']
-            #alpha_list = ['ⓐ', 'ⓑ', 'ⓒ', 'ⓓ']
-            index_shuffle = random.sample([1,2,3,4], 4)
-            #index_shuffle = [1,2,3,4]
-            alpha_num = 0
-            choices = ''
-            gt_alpha = ''
-            for index in index_shuffle:
+            alpha_list = ["A", "B", "C", "D"]
+            # alpha_list = ['ⓐ', 'ⓑ', 'ⓒ', 'ⓓ']
+            index_shuffle = random.sample([1, 2, 3, 4], 4)
+            # index_shuffle = [1,2,3,4]
+            choices = ""
+            gt_alpha = ""
+            for alpha_num, index in enumerate(index_shuffle):
                 if index == 1:
-                    choices += f'{alpha_list[alpha_num]}. {Gemini_GT_1}\n\n'
+                    choices += f"{alpha_list[alpha_num]}. {Gemini_GT_1}\n\n"
                     gt_alpha = alpha_list[alpha_num]
 
                 elif index == 2:
-                    choices += f'{alpha_list[alpha_num]}. {Gemini_GT_2}\n\n'
+                    choices += f"{alpha_list[alpha_num]}. {Gemini_GT_2}\n\n"
 
                 elif index == 3:
-                    choices += f'{alpha_list[alpha_num]}. {Gemini_GT_3}\n\n'
+                    choices += f"{alpha_list[alpha_num]}. {Gemini_GT_3}\n\n"
 
                 elif index == 4:
-                    choices += f'{alpha_list[alpha_num]}. {Gemini_GT_4}\n\n'
-
-                alpha_num += 1
-            
+                    choices += f"{alpha_list[alpha_num]}. {Gemini_GT_4}\n\n"
 
             ## prompt
-            query = f'다음 주어진 [A, B, C, D] 보기 중 이미지에 있는 도식 정보를 가장 잘 설명하는 것을 고르시오. 답변은 무조건 알파벳이 먼저 나와야합니다.\n\n<보기>\n{choices}# 가장 적절한 설명문:'
-            #query = f'다음 주어진 [ⓐ, ⓑ, ⓒ, ⓓ] 선택지 중 이미지에 있는 도식 정보를 가장 잘 설명하는 것을 고르시오. 답변은 무조건 알파벳 기호가 먼저 나와야합니다.\n\n{choices}\n가장 적절한 설명문:'
-            #print(query)
+            query = f"다음 주어진 [A, B, C, D] 보기 중 이미지에 있는 도식 정보를 가장 잘 설명하는 것을 고르시오. 답변은 무조건 알파벳이 먼저 나와야합니다.\n\n<보기>\n{choices}# 가장 적절한 설명문:"
+            # query = f'다음 주어진 [ⓐ, ⓑ, ⓒ, ⓓ] 선택지 중 이미지에 있는 도식 정보를 가장 잘 설명하는 것을 고르시오. 답변은 무조건 알파벳 기호가 먼저 나와야합니다.\n\n{choices}\n가장 적절한 설명문:'
+            # print(query)
 
             ## Make query
             messages = [
@@ -771,42 +695,42 @@ def VDC_Eval(eval_dataset,
 
             # Preparation for inference
             inputs = text_tokenizer.apply_chat_template(
-                messages,
-                tokenize=True,
-                add_generation_prompt=True,
-                return_dict=True,
-                return_tensors="pt"
+                messages, tokenize=True, add_generation_prompt=True, return_dict=True, return_tensors="pt"
             )
             inputs = inputs.to(model.device)
 
             # Inference: Generation of the output
             generated_ids = model.generate(**inputs, max_new_tokens=4096, do_sample=False, temperature=None)
             generated_ids_trimmed = [
-                out_ids[len(in_ids) :] for in_ids, out_ids in zip(inputs.input_ids, generated_ids)
+                out_ids[len(in_ids) :] for in_ids, out_ids in zip(inputs.input_ids, generated_ids, strict=True)
             ]
             output = text_tokenizer.batch_decode(
                 generated_ids_trimmed, skip_special_tokens=True, clean_up_tokenization_spaces=False
             )[0]
 
-            print(f'Output: {output}')
+            print(f"Output: {output}")
             print("# GT alpha:", gt_alpha)
 
             ## TODO: calculate accuracy
-            pred_alpha = output.strip()[0] # alphabet
+            pred_alpha = output.strip()[0]  # alphabet
 
             if gt_alpha.lower() in pred_alpha.lower():
-                if domain == '보고서':
+                if domain == "보고서":
                     type1_correct_count += 1
-                elif domain == '보도자료':
+                elif domain == "보도자료":
                     type2_correct_count += 1
-                else: 
-                    raise Exception("?????? doc_type:", domain)
+                else:
+                    raise ValueError("?????? doc_type:", domain)
 
-                print("Correct count:", type1_correct_count+type2_correct_count)
-            
-            #break
+                print("Correct count:", type1_correct_count + type2_correct_count)
+
+            # break
 
     else:
-        raise Exception("Not yet implementation")
-    
-    return (type1_correct_count+type2_correct_count)/len(eval_dataset), type1_correct_count/100, type2_correct_count/100
+        raise NotImplementedError("Not yet implementation")
+
+    return (
+        (type1_correct_count + type2_correct_count) / len(eval_dataset),
+        type1_correct_count / 100,
+        type2_correct_count / 100,
+    )
