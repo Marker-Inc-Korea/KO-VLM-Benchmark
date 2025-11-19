@@ -43,5 +43,6 @@ def test_verify_two_hop_queries():
 
     from ko_vlm_benchmark.multi_page.verifier import verify_two_hop_queries
 
-    df = verify_two_hop_queries(queries, documents, answers, llm, tokenizer)
-    assert not df.empty
+    balance_scores = verify_two_hop_queries(queries, documents, answers, llm, tokenizer)
+    assert len(balance_scores) == len(queries)
+    assert all(isinstance(x, float) for x in balance_scores)

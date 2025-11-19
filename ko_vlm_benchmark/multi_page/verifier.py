@@ -38,7 +38,7 @@ def verify_two_hop_queries(
     llm: LLM,
     tokenizer: Any,
     **sampling_kwargs: Any,
-):
+) -> list[float]:
     # Build a result dataframe
     df = pd.DataFrame({
         "query": queries,
@@ -69,7 +69,21 @@ def verify_two_hop_queries(
         df["second_prompt"].tolist(), tokenizer=tokenizer, llm=llm, **sampling_kwargs
     )
 
-    return df
+    df["info_gain"] = df.apply(
+        lambda row: calculate_info_gain(row["both_logprob"], row["first_logprob"], row["second_logprob"]),
+        axis=1,
+    )
+    return df["info_gain"].tolist()
+
+
+def calculate_info_gain(both_logprob: float, first_logprob: float, second_logprob: float) -> float:
+    """
+    Calculate information gain.
+    The higher it is, the better (which means it is likely to be the multi-hop question)
+    """
+    d1 = (both_logprob - first_logprob) / abs(both_logprob)
+    d2 = (both_logprob - second_logprob) / abs(both_logprob)
+    return min(d1, d2)
 
 
 def calculate_prompt_logprobs(
