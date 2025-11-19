@@ -1,4 +1,75 @@
+import re
+from typing import Any, Literal
+
+import pandas as pd
+from nltk import PunktSentenceTokenizer
+from vllm import LLM, SamplingParams
 from vllm.logprobs import Logprob
+
+
+def build_prompt(
+    query: str,
+    documents: tuple[str, str],
+    answer: str,
+    which_document: Literal["first", "second", "both"],
+) -> list[dict]:
+    if which_document == "first":
+        docs_text = f"Document 1: {documents[0]}"
+    elif which_document == "second":
+        docs_text = f"Document 1: {documents[1]}"
+    else:  # both
+        docs_text = f"Document 1: {documents[0]}\nDocument 2: {documents[1]}"
+
+    chat_prompt = [
+        {
+            "role": "system",
+            "content": "You are a helpful assistant that answers the user question based on provided documents.",
+        },
+        {"role": "user", "content": f"{docs_text}\n\nQuestion: {query}"},
+        {"role": "assistant", "content": answer},
+    ]
+    return chat_prompt
+
+
+def verify_two_hop_queries(
+    queries: list[str],
+    documents: list[tuple[str, str]],
+    answers: list[str],
+    llm: LLM,
+    tokenizer: Any,
+    **sampling_kwargs: Any,
+):
+    # Build a result dataframe
+    df = pd.DataFrame({
+        "query": queries,
+        "document_1": [doc[0] for doc in documents],
+        "document_2": [doc[1] for doc in documents],
+        "answer": answers,
+    })
+
+    # Calculate answer lengths
+    df["both_prompt"] = df.apply(
+        lambda row: build_prompt(row["query"], (row["document_1"], row["document_2"]), row["answer"], "both"),
+        axis=1,
+    )
+    df["first_prompt"] = df.apply(
+        lambda row: build_prompt(row["query"], (row["document_1"], row["document_2"]), row["answer"], "first"),
+        axis=1,
+    )
+    df["second_prompt"] = df.apply(
+        lambda row: build_prompt(row["query"], (row["document_1"], row["document_2"]), row["answer"], "second"),
+        axis=1,
+    )
+
+    df["both_logprob"] = calculate_logprobs(df["both_prompt"].tolist(), tokenizer=tokenizer, llm=llm, **sampling_kwargs)
+    df["first_logprob"] = calculate_logprobs(
+        df["first_prompt"].tolist(), tokenizer=tokenizer, llm=llm, **sampling_kwargs
+    )
+    df["second_logprob"] = calculate_logprobs(
+        df["second_prompt"].tolist(), tokenizer=tokenizer, llm=llm, **sampling_kwargs
+    )
+
+    return df
 
 
 def calculate_prompt_logprobs(
@@ -18,3 +89,96 @@ def calculate_prompt_logprobs(
     if not logprob_list:
         return -10.0
     return sum(logprob_list) / len(logprob_list)
+
+
+def split_response(tokenizer: Any, conversation: list[dict]) -> tuple[str, list[dict]]:
+    response = conversation[-1]["content"]
+    sentences = text_split_by_punctuation(response, return_dict=False)
+
+    formatted_prompt = tokenizer.apply_chat_template(conversation, tokenize=False, enable_thinking=False)
+
+    targets = []
+    for sentence in sentences:
+        start_char = formatted_prompt.find(sentence)
+        end_char = start_char + len(sentence)
+        targets.append({"start_char": start_char, "end_char": end_char, "sentence": sentence})
+
+    tokenized = tokenizer(formatted_prompt, return_offsets_mapping=True, add_special_tokens=False, return_tensors="pt")
+
+    offsets = tokenized.pop("offset_mapping")
+
+    result_indices = []
+    for target in targets:
+        indices = [
+            idx
+            for idx, (start, end) in enumerate(offsets[0])
+            if start >= target["start_char"] and end <= target["end_char"]
+        ]
+        result_indices.append(indices)
+
+    return formatted_prompt, [
+        {"token_indices": indices, "sentence": target["sentence"]}
+        for indices, target in zip(result_indices, targets, strict=True)
+    ]
+
+
+def text_split_by_punctuation(original_text: str, return_dict: bool = False) -> list[str] | list[dict]:
+    """
+    Code from https://github.com/facebookresearch/SelfCite
+    """
+    # text = re.sub(r'([a-z])\.([A-Z])', r'\1. \2', original_text)  # separate period without space
+    text = original_text
+    custom_sent_tokenizer = PunktSentenceTokenizer()
+    punctuations = r"([。；！？])"  # For Chinese support # noqa: RUF001
+
+    separated = custom_sent_tokenizer.tokenize(text)
+    separated = [item for s in separated for item in re.split(punctuations, s)]
+    # Put the punctuations back to the sentence
+    for i in range(1, len(separated)):
+        if re.match(punctuations, separated[i]):
+            separated[i - 1] += separated[i]
+            separated[i] = ""
+
+    separated = [s for s in separated if s != ""]
+    if len(separated) == 1:
+        separated = original_text.split("\n\n")
+    separated = [s.strip() for s in separated if s.strip() != ""]
+    if not return_dict:
+        return separated
+    else:
+        pos = 0
+        res = []
+        for i, sent in enumerate(separated):
+            st = original_text.find(sent, pos)
+            ed = st + len(sent)
+            res.append({
+                "c_idx": i,
+                "content": sent,
+                "start_idx": st,
+                "end_idx": ed,
+            })
+            pos = ed
+        return res
+
+
+def calculate_logprobs(input_conversation_list: list[dict], tokenizer: Any, llm: LLM, **sampling_kwargs) -> list[float]:
+    df = pd.DataFrame({"conversation": input_conversation_list})
+    df[["formatted_prompt", "target_dict"]] = df.apply(
+        lambda row: split_response(tokenizer, row["conversation"]),
+        result_type="expand",
+        axis=1,
+    )
+    df["target_token_indices"] = df["target_dict"].apply(lambda x: [y["token_indices"] for y in x])
+    df["target_sentences"] = df["target_dict"].apply(lambda x: [y["sentence"] for y in x])
+    df.drop(columns=["target_dict"], inplace=True)
+
+    outputs = llm.generate(
+        df["formatted_prompt"].tolist(), sampling_params=SamplingParams(prompt_logprobs=1, **sampling_kwargs)
+    )
+    df["prompt_logprobs"] = [output.prompt_logprobs for output in outputs]
+
+    df["logprob_score"] = df.apply(
+        lambda row: calculate_prompt_logprobs(row["prompt_logprobs"], row["target_token_indices"]),
+        axis=1,
+    )
+    return df["logprob_score"].tolist()
