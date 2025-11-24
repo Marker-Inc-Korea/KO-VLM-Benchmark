@@ -1923,7 +1923,7 @@ requires-dist = [
     { name = "rouge-score", specifier = ">=0.1.2" },
     { name = "torch", specifier = ">=2.8.0" },
     { name = "transformers", specifier = ">=4.57.1" },
-    { name = "vllm", specifier = ">=0.11.0" },
+    { name = "vllm", specifier = ">=0.11.2" },
 ]
 
 [package.metadata.requires-dev]

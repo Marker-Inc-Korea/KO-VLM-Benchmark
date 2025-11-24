@@ -1,10 +1,77 @@
+from collections import Counter
 import re
 from typing import Any, Literal
+import asyncio
 
+from llama_cloud import ImageBlock
 import pandas as pd
 from nltk import PunktSentenceTokenizer
 from vllm import LLM, SamplingParams
 from vllm.logprobs import Logprob
+from llama_index.core.multi_modal_llms import MultiModalLLM
+from llama_index.core.schema import ImageNode
+
+
+async def verify_multipage_question(
+    mm_llm: MultiModalLLM,
+    query: str,
+    image_documents: list[ImageNode | ImageBlock],
+    semaphore: asyncio.Semaphore,
+    vote_count: int = 3,
+) -> str:
+    """
+    Determines if a question requires multiple pages to answer using a VLM.
+    Returns 'yes' or 'no' based on a majority vote of 3 attempts.
+    """
+    
+    # Prompt designed to force a binary yes/no decision
+    verification_prompt = (
+        "You are a dataset verifier. Your task is to determine if the user's "
+        "query requires information from MULTIPLE pages (images) to be answered correctly, "
+        "or if it can be answered using only one of them.\n\n"
+        f"Query: {query}\n\n"
+        "Review the provided document images. Does answering this query require "
+        "synthesizing information from more than one image? "
+        "Return exactly and only the word 'yes' or 'no'."
+    )
+
+    async def single_request() -> str:
+        """Helper to run a single async VLM request with semaphore protection."""
+        async with semaphore:
+            try:
+                # acomplete is the async version of complete for LlamaIndex LLMs
+                response = await mm_llm.acomplete(
+                    prompt=verification_prompt,
+                    image_documents=image_documents
+                )
+                # Clean output to ensure we just get 'yes' or 'no'
+                decision = response.text.strip().lower()
+                if "yes" in decision: 
+                    return "yes"
+                if "no" in decision: 
+                    return "no"
+                return "no" # Fallback default
+            except Exception as e:
+                print(f"Request failed: {e}")
+                return "error"
+
+    # Create tasks for self-consistency (VOTE_COUNT times)
+    tasks = [single_request() for _ in range(vote_count)]
+    
+    # Run requests concurrently
+    results = await asyncio.gather(*tasks)
+    
+    # Filter out errors
+    valid_results = [r for r in results if r in ["yes", "no"]]
+    
+    if not valid_results:
+        return "no" # Default if all failed
+
+    # Majority Vote
+    vote_counts = Counter(valid_results)
+    majority_decision, _ = vote_counts.most_common(1)[0]
+    
+    return majority_decision
 
 
 def build_prompt(
