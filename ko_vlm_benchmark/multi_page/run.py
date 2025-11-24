@@ -1,0 +1,516 @@
+import asyncio
+import random
+from pathlib import Path
+from typing import Any
+
+import click
+import pandas as pd
+from llama_index.core.base.llms.base import BaseLLM
+from llama_index.core.multi_modal_llms import MultiModalLLM
+from llama_index.core.schema import ImageNode
+from llama_index.llms.anthropic import Anthropic
+from llama_index.multi_modal_llms.anthropic import AnthropicMultiModal
+from tqdm import tqdm
+from vllm import LLM
+
+from ko_vlm_benchmark.multi_page.generate import (
+    generate_desired_answer,
+    generate_original_query,
+    generate_two_hop_question,
+)
+from ko_vlm_benchmark.multi_page.verifier import verify_multipage_question, verify_two_hop_queries
+from ko_vlm_benchmark.exceptions import MissingColumnError
+
+
+def initialize_models(
+    vllm_model_name: str,
+    llm_model_name: str,
+    mm_llm_model_name: str,
+) -> tuple[LLM, Any, BaseLLM, MultiModalLLM]:
+    """Initialize all models once to avoid redundant overhead."""
+    # Initialize vLLM for logprobs verification
+    click.echo(f"Initializing vLLM model: {vllm_model_name}")
+    vllm_llm = LLM(model=vllm_model_name, tensor_parallel_size=1,
+                   gpu_memory_utilization=0.8)
+    tokenizer = vllm_llm.get_tokenizer()
+    
+    # Initialize LlamaIndex BaseLLM for question generation
+    click.echo(f"Initializing BaseLLM: {llm_model_name}")
+    base_llm = Anthropic(model=llm_model_name)
+    
+    # Initialize LlamaIndex MultiModalLLM for multipage verification
+    click.echo(f"Initializing MultiModalLLM: {mm_llm_model_name}")
+    mm_llm = AnthropicMultiModal(model=mm_llm_model_name)
+    
+    return vllm_llm, tokenizer, base_llm, mm_llm
+
+
+def load_and_prepare_data(data_path: Path, image_base_path: Path) -> pd.DataFrame:
+    """Load label.xlsx and prepare data with image paths grouped by document."""
+    click.echo(f"Loading data from {data_path}")
+    df = pd.read_excel(data_path)
+    
+    # Validate required columns
+    required_cols = ["doc_type", "modified_visual_context", "Orig_image", "document"]
+    missing_cols = [col for col in required_cols if col not in df.columns]
+    if missing_cols:
+        raise MissingColumnError(missing_cols)
+    
+    # Construct full image paths
+    df["image_path"] = df.apply(
+        lambda row: str(image_base_path / row["doc_type"] / row["Orig_image"]),
+        axis=1,
+    )
+    
+    click.echo(f"Loaded {len(df)} rows from {len(df['document'].unique())} documents")
+    return df
+
+
+def select_page_pairs(
+    document_pages: pd.DataFrame,
+    num_pairs: int,
+) -> list[tuple[int, int]]:
+    """Randomly select page pairs from a document."""
+    page_indices = list(range(len(document_pages)))
+    
+    if len(page_indices) < 2:
+        return []
+    
+    # Generate all possible pairs
+    all_pairs = [(i, j) for i in page_indices for j in page_indices if i < j]
+    
+    # Randomly select up to num_pairs
+    selected_pairs = random.sample(all_pairs, min(num_pairs, len(all_pairs)))
+    
+    return selected_pairs
+
+
+async def generate_questions_for_document(
+    document_id: str,
+    document_pages: pd.DataFrame,
+    base_llm: BaseLLM,
+    mm_llm: MultiModalLLM,
+    num_pairs: int,
+    semaphore: asyncio.Semaphore,
+) -> list[dict]:
+    """Generate multi-hop questions for a single document."""
+    page_pairs = select_page_pairs(document_pages, num_pairs)
+    
+    if not page_pairs:
+        return []
+    
+    results = []
+    tasks = []
+    
+    for orig_idx, added_idx in page_pairs:
+        orig_page = document_pages.iloc[orig_idx]
+        added_page = document_pages.iloc[added_idx]
+        
+        async def generate_with_semaphore(
+            orig_doc: str,
+            added_doc: str,
+            orig_img: str,
+            added_img: str,
+            orig_i: int,
+            added_i: int,
+        ):
+            async with semaphore:
+                try:
+                    # Generate original query from the first document
+                    original_query = await generate_original_query(
+                        document=orig_doc,
+                        llm=base_llm,
+                    )
+                    
+                    # Generate desired answer using MultiModalLLM with the original query
+                    desired_answer = await generate_desired_answer(
+                        original_query=original_query,
+                        document=orig_doc,
+                        image_path=orig_img,
+                        mm_llm=mm_llm,
+                    )
+                    
+                    # Generate the two-hop question
+                    question = await generate_two_hop_question(
+                        desired_answer=desired_answer,
+                        original_document=orig_doc,
+                        added_document=added_doc,
+                        original_query=original_query,
+                        llm=base_llm,
+                    )
+                    return {
+                        "document_id": document_id,
+                        "page_1_idx": orig_i,
+                        "page_2_idx": added_i,
+                        "page_1_image": orig_img,
+                        "page_2_image": added_img,
+                        "page_1_context": orig_doc,
+                        "page_2_context": added_doc,
+                        "generated_question": question,
+                        "desired_answer": desired_answer,
+                        "original_query": original_query,
+                    }
+                except Exception as e:
+                    click.echo(f"Error generating question for {document_id}: {e}")
+                    return None
+        
+        task = generate_with_semaphore(
+            orig_page["modified_visual_context"],
+            added_page["modified_visual_context"],
+            orig_page["image_path"],
+            added_page["image_path"],
+            orig_idx,
+            added_idx,
+        )
+        tasks.append(task)
+    
+    results = await asyncio.gather(*tasks)
+    return [r for r in results if r is not None]
+
+
+async def verify_questions_stage1(
+    questions: list[dict],
+    vllm_llm: LLM,
+    tokenizer: Any,
+    threshold: float,
+    sampling_params: dict,
+) -> list[dict]:
+    """First stage: Verify using logprobs and information gain."""
+    if not questions:
+        return []
+    
+    click.echo(f"Stage 1 verification: Checking {len(questions)} questions with info gain threshold {threshold}")
+    
+    queries = [q["generated_question"] for q in questions]
+    documents = [(q["page_1_context"], q["page_2_context"]) for q in questions]
+    answers = [q["desired_answer"] for q in questions]
+    
+    info_gains = verify_two_hop_queries(
+        queries=queries,
+        documents=documents,
+        answers=answers,
+        llm=vllm_llm,
+        tokenizer=tokenizer,
+        **sampling_params,
+    )
+    
+    # Filter by threshold
+    verified = []
+    for question, info_gain in zip(questions, info_gains):
+        question["info_gain"] = info_gain
+        if info_gain >= threshold:
+            verified.append(question)
+    
+    click.echo(f"Stage 1 passed: {len(verified)}/{len(questions)} questions")
+    return verified
+
+
+async def verify_questions_stage2(
+    questions: list[dict],
+    mm_llm: MultiModalLLM,
+    semaphore: asyncio.Semaphore,
+    vote_count: int,
+) -> list[dict]:
+    """Second stage: Verify multi-page requirement using VLM."""
+    if not questions:
+        return []
+    
+    click.echo(f"Stage 2 verification: Checking {len(questions)} questions with vote_count {vote_count}")
+    
+    async def verify_single(question: dict):
+        try:
+            # Create ImageNode objects for the images
+            image_documents = [
+                ImageNode(image_path=question["page_1_image"]),
+                ImageNode(image_path=question["page_2_image"]),
+            ]
+            
+            decision = await verify_multipage_question(
+                mm_llm=mm_llm,
+                query=question["generated_question"],
+                image_documents=image_documents,
+                semaphore=semaphore,
+                vote_count=vote_count,
+            )
+            
+            question["multipage_verified"] = decision
+            return question if decision == "yes" else None
+        except Exception as e:
+            click.echo(f"Error in stage 2 verification: {e}")
+            return None
+    
+    tasks = [verify_single(q) for q in questions]
+    results = await asyncio.gather(*tasks)
+    
+    verified = [r for r in results if r is not None]
+    click.echo(f"Stage 2 passed: {len(verified)}/{len(questions)} questions")
+    return verified
+
+
+async def process_batch(
+    batch_documents: list[str],
+    df: pd.DataFrame,
+    vllm_llm: LLM,
+    tokenizer: Any,
+    base_llm: BaseLLM,
+    mm_llm: MultiModalLLM,
+    num_pairs: int,
+    threshold: float,
+    vote_count: int,
+    semaphore_limit: int,
+    sampling_params: dict,
+) -> list[dict]:
+    """Process a batch of documents."""
+    semaphore = asyncio.Semaphore(semaphore_limit)
+    
+    all_questions = []
+    
+    # Generate questions for all documents in batch
+    for doc_id in tqdm(batch_documents, desc="Generating questions"):
+        document_pages = df[df["document"] == doc_id].reset_index(drop=True)
+        questions = await generate_questions_for_document(
+            document_id=doc_id,
+            document_pages=document_pages,
+            base_llm=base_llm,
+            mm_llm=mm_llm,
+            num_pairs=num_pairs,
+            semaphore=semaphore,
+        )
+        all_questions.extend(questions)
+    
+    click.echo(f"Generated {len(all_questions)} questions for batch")
+    
+    # Stage 1: Verify with logprobs
+    stage1_verified = await verify_questions_stage1(
+        questions=all_questions,
+        vllm_llm=vllm_llm,
+        tokenizer=tokenizer,
+        threshold=threshold,
+        sampling_params=sampling_params,
+    )
+    
+    # Stage 2: Verify multi-page requirement
+    stage2_verified = await verify_questions_stage2(
+        questions=stage1_verified,
+        mm_llm=mm_llm,
+        semaphore=semaphore,
+        vote_count=vote_count,
+    )
+    
+    return stage2_verified
+
+
+def save_checkpoint(results: list[dict], save_path: Path, batch_idx: int):
+    """Save batch results to CSV."""
+    if not results:
+        click.echo(f"No results to save for batch {batch_idx}")
+        return
+    
+    df_results = pd.DataFrame(results)
+    
+    # Create filename with batch index
+    batch_file = save_path / f"batch_{batch_idx:04d}.csv"
+    df_results.to_csv(batch_file, index=False)
+    click.echo(f"Saved {len(results)} results to {batch_file}")
+
+
+def get_last_checkpoint(save_path: Path) -> int:
+    """Find the last completed batch index."""
+    if not save_path.exists():
+        return -1
+    
+    batch_files = list(save_path.glob("batch_*.csv"))
+    if not batch_files:
+        return -1
+    
+    # Extract batch numbers and find max
+    batch_numbers = []
+    for f in batch_files:
+        try:
+            batch_num = int(f.stem.split("_")[1])
+            batch_numbers.append(batch_num)
+        except (IndexError, ValueError):
+            continue
+    
+    return max(batch_numbers) if batch_numbers else -1
+
+
+@click.command()
+@click.option(
+    "--data-path",
+    type=click.Path(exists=True, path_type=Path),
+    default=Path("data_multi_page/label.xlsx"),
+    help="Path to label.xlsx file",
+)
+@click.option(
+    "--image-base-path",
+    type=click.Path(exists=True, path_type=Path),
+    default=Path("data_multi_page/images"),
+    help="Base path for images",
+)
+@click.option(
+    "--save-path",
+    type=click.Path(path_type=Path),
+    required=True,
+    help="Directory to save checkpoint CSV files",
+)
+@click.option(
+    "--batch-size",
+    type=int,
+    default=10,
+    help="Number of documents to process per batch",
+)
+@click.option(
+    "--num-pairs",
+    type=int,
+    default=5,
+    help="Number of random page pairs to select per document",
+)
+@click.option(
+    "--threshold",
+    type=float,
+    default=0.3,
+    help="Information gain threshold for stage 1 verification",
+)
+@click.option(
+    "--vote-count",
+    type=int,
+    default=3,
+    help="Number of votes for stage 2 verification",
+)
+@click.option(
+    "--semaphore-limit",
+    type=int,
+    default=16,
+    help="Async concurrency limit",
+)
+@click.option(
+    "--vllm-model",
+    type=str,
+    default="Qwen/Qwen3-8B",
+    help="vLLM model name for stage 1 verification",
+)
+@click.option(
+    "--llm-model",
+    type=str,
+    default="claude-sonnet-4-20250514",
+    help="LlamaIndex LLM model for question generation",
+)
+@click.option(
+    "--mm-llm-model",
+    type=str,
+    default="claude-sonnet-4-20250514",
+    help="LlamaIndex MultiModalLLM model for stage 2 verification",
+)
+@click.option(
+    "--temperature",
+    type=float,
+    default=0.0,
+    help="Temperature for vLLM sampling",
+)
+@click.option(
+    "--max-tokens",
+    type=int,
+    default=16,
+    help="Max tokens for vLLM sampling",
+)
+@click.option(
+    "--resume/--no-resume",
+    default=True,
+    help="Resume from last checkpoint",
+)
+@click.option(
+    "--subset", default=None, type=int
+)
+def main(
+    data_path: Path,
+    image_base_path: Path,
+    save_path: Path,
+    batch_size: int,
+    num_pairs: int,
+    threshold: float,
+    vote_count: int,
+    semaphore_limit: int,
+    vllm_model: str,
+    llm_model: str,
+    mm_llm_model: str,
+    temperature: float,
+    max_tokens: int,
+    resume: bool,
+    subset: int | None,
+):
+    """Generate and verify multi-hop questions from multi-page documents."""
+    # Create save directory
+    save_path.mkdir(parents=True, exist_ok=True)
+    
+    # Initialize models
+    vllm_llm, tokenizer, base_llm, mm_llm = initialize_models(
+        vllm_model_name=vllm_model,
+        llm_model_name=llm_model,
+        mm_llm_model_name=mm_llm_model,
+    )
+    
+    # Prepare sampling params for vLLM
+    sampling_params = {
+        "temperature": temperature,
+        "max_tokens": max_tokens,
+    }
+    
+    # Load data
+    df = load_and_prepare_data(data_path, image_base_path)
+    if subset is not None:
+        df = df.sample(n=subset, random_state=42).reset_index(drop=True)
+    
+    # Get unique documents
+    document_ids = df["document"].unique().tolist()
+    click.echo(f"Total documents: {len(document_ids)}")
+    
+    # Check for checkpoint
+    start_batch = 0
+    if resume:
+        last_batch = get_last_checkpoint(save_path)
+        if last_batch >= 0:
+            start_batch = last_batch + 1
+            click.echo(f"Resuming from batch {start_batch}")
+    
+    # Process in batches
+    num_batches = (len(document_ids) + batch_size - 1) // batch_size
+    
+    for batch_idx in range(start_batch, num_batches):
+        batch_start = batch_idx * batch_size
+        batch_end = min(batch_start + batch_size, len(document_ids))
+        batch_documents = document_ids[batch_start:batch_end]
+        
+        click.echo(f"\n{'='*60}")
+        click.echo(f"Processing batch {batch_idx + 1}/{num_batches}")
+        click.echo(f"Documents {batch_start + 1}-{batch_end}/{len(document_ids)}")
+        click.echo(f"{'='*60}\n")
+        
+        # Process batch
+        results = asyncio.run(
+            process_batch(
+                batch_documents=batch_documents,
+                df=df,
+                vllm_llm=vllm_llm,
+                tokenizer=tokenizer,
+                base_llm=base_llm,
+                mm_llm=mm_llm,
+                num_pairs=num_pairs,
+                threshold=threshold,
+                vote_count=vote_count,
+                semaphore_limit=semaphore_limit,
+                sampling_params=sampling_params,
+            )
+        )
+        
+        # Save checkpoint
+        save_checkpoint(results, save_path, batch_idx)
+    
+    click.echo("\n" + "="*60)
+    click.echo("Processing complete!")
+    click.echo(f"Results saved to {save_path}")
+    click.echo("="*60)
+
+
+if __name__ == "__main__":
+    main()
