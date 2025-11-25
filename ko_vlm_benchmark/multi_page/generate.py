@@ -2,8 +2,8 @@ import copy
 
 from llama_index.core.base.llms.base import BaseLLM
 from llama_index.core.base.llms.types import ChatMessage, MessageRole
-from llama_index.core.multi_modal_llms import MultiModalLLM
-from llama_index.core.schema import ImageNode
+
+from ko_vlm_benchmark.anthropic import claude_multimodal_acomplete
 
 two_hop_incremental_prompt = [
     ChatMessage(
@@ -38,12 +38,12 @@ async def generate_original_query(
 문서: {document}
 
 질문:"""
-    
+
     messages = [
         ChatMessage(role=MessageRole.SYSTEM, content="당신은 문서 기반 질문을 생성하는 AI 어시스턴트입니다."),
         ChatMessage(role=MessageRole.USER, content=prompt),
     ]
-    
+
     chat_response = await llm.achat(messages)
     response = chat_response.message.content
     if response is None:
@@ -55,7 +55,7 @@ async def generate_desired_answer(
     original_query: str,
     document: str,
     image_path: str,
-    mm_llm: MultiModalLLM,
+    api_key: str,
 ) -> str:
     """
     Generate a desired answer for the original query using MultiModalLLM.
@@ -68,19 +68,10 @@ async def generate_desired_answer(
 문서 설명: {document}
 
 답변:"""
-    
-    # Create ImageNode for the image
-    image_document = ImageNode(image_path=image_path)
-    
+
     # Use MultiModalLLM to generate answer with both text and image
-    response = await mm_llm.acomplete(
-        prompt=prompt,
-        image_documents=[image_document],
-    )
-    
-    if response.text is None:
-        return ""
-    return response.text.strip()
+    response = await claude_multimodal_acomplete(api_key, [image_path], prompt)
+    return response
 
 
 async def generate_two_hop_question(
