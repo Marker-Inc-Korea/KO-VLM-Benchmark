@@ -122,6 +122,7 @@ async def generate_two_hop_answer(
 
 async def generate_model_answer(
     question: str,
+    image_descriptions: list[str],
     image_paths: list[str],
     api_key: str,
     model: str = "claude-opus-4-5-20251101",
@@ -132,6 +133,7 @@ async def generate_model_answer(
 
     Args:
         question: The multi-hop question to answer.
+        image_descriptions: List of descriptions for the image documents.
         image_paths: List of paths to image files.
         api_key: Anthropic API key.
         model: Model to use for answer generation.
@@ -140,7 +142,12 @@ async def generate_model_answer(
     Returns:
         The generated model answer.
     """
+    document_descriptions = "\n\n".join([f"문서 {i + 1} 설명: {desc}" for i, desc in enumerate(image_descriptions)])
     prompt = f"""다음은 두 개의 문서 이미지입니다. 주어진 질문에 대해 두 문서를 모두 참고하여 정확하고 상세한 답변을 생성하세요.
+또한, 이해를 돕기 위하여 각 문서 이미지에 대한 설명도 함께 참고하세요.
+만약 설명과 이미지가 다른 부분이 있다면, 이미지에 있는 내용을 우선시하여 답변을 작성하세요.
+
+{document_descriptions}
 
 질문: {question}
 

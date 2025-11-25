@@ -355,6 +355,7 @@ async def process_batch(
             try:
                 model_answer = await generate_model_answer(
                     question=question["generated_question"],
+                    image_descriptions=[question["page_1_context"], question["page_2_context"]],
                     image_paths=[question["page_1_image"], question["page_2_image"]],
                     api_key=api_key,
                     model="claude-opus-4-5-20251101",
