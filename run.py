@@ -495,7 +495,24 @@ def main(
     # Load data
     df = load_and_prepare_data(data_path, image_base_path)
     if subset is not None:
-        df = df.sample(n=subset, random_state=42).reset_index(drop=True)
+        # Sample documents (not rows) and limit pages per document
+        click.echo(f"Applying subset sampling: {subset} documents with max {subset} pages each")
+
+        # Get unique documents and sample them
+        all_documents = df["document"].unique()
+        sampled_documents = pd.Series(all_documents).sample(n=min(subset, len(all_documents)), random_state=42).tolist()
+
+        # For each sampled document, sample pages if needed
+        sampled_dfs = []
+        for doc in sampled_documents:
+            doc_df = df[df["document"] == doc]
+            # If document has more pages than subset, sample them
+            if len(doc_df) > subset:
+                doc_df = doc_df.sample(n=subset, random_state=42)
+            sampled_dfs.append(doc_df)
+
+        df = pd.concat(sampled_dfs, ignore_index=True)
+        click.echo(f"Subset: {len(df)} rows from {len(sampled_documents)} documents")
 
     # Get unique documents
     document_ids = df["document"].unique().tolist()
