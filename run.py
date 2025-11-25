@@ -38,13 +38,13 @@ def initialize_models(
     return vllm_llm, tokenizer, base_llm
 
 
-def load_and_prepare_data(data_path: Path, image_base_path: Path) -> pd.DataFrame:
+def load_and_prepare_data(data_path: Path, image_base_path: Path, description_column: str) -> pd.DataFrame:
     """Load label.xlsx and prepare data with image paths grouped by document."""
     click.echo(f"Loading data from {data_path}")
     df = pd.read_excel(data_path)
 
     # Validate required columns
-    required_cols = ["doc_type", "modified_visual_context", "Orig_image", "document"]
+    required_cols = ["doc_type", description_column, "Orig_image", "document"]
     missing_cols = [col for col in required_cols if col not in df.columns]
     if missing_cols:
         raise MissingColumnError(missing_cols)
@@ -85,6 +85,7 @@ async def generate_questions_for_document(
     num_pairs: int,
     semaphore: asyncio.Semaphore,
     api_key: str,
+    description_column: str,
 ) -> list[dict]:
     """Generate multi-hop questions for a single document."""
     page_pairs = select_page_pairs(document_pages, num_pairs)
@@ -164,8 +165,8 @@ async def generate_questions_for_document(
                     }
 
         task = generate_with_semaphore(
-            orig_page["modified_visual_context"],
-            added_page["modified_visual_context"],
+            orig_page[description_column],
+            added_page[description_column],
             orig_page["image_path"],
             added_page["image_path"],
             orig_idx,
@@ -289,6 +290,7 @@ async def process_batch(
     semaphore_limit: int,
     sampling_params: dict,
     api_key: str,
+    description_column: str,
 ) -> list[dict]:
     """Process a batch of documents."""
     semaphore = asyncio.Semaphore(semaphore_limit)
@@ -305,6 +307,7 @@ async def process_batch(
             num_pairs=num_pairs,
             semaphore=semaphore,
             api_key=api_key,
+            description_column=description_column,
         )
         all_questions.extend(questions)
 
@@ -337,53 +340,57 @@ async def process_batch(
 
 
 def save_checkpoint(results: list[dict], save_path: Path, batch_idx: int):
-    """Save batch results to CSV."""
+    """Save batch results to a single CSV file (append mode)."""
     if not results:
         click.echo(f"No results to save for batch {batch_idx}")
         return
 
     df_results = pd.DataFrame(results)
+    
+    # Add batch index to the dataframe
+    df_results["batch_idx"] = batch_idx
 
-    # Create filename with batch index
-    batch_file = save_path / f"batch_{batch_idx:04d}.csv"
-    df_results.to_csv(batch_file, index=False)
+    # Single CSV file path
+    csv_file = save_path / "results.csv"
+    
+    # Append to existing file or create new one
+    if csv_file.exists():
+        df_results.to_csv(csv_file, mode='a', header=False, index=False)
+    else:
+        df_results.to_csv(csv_file, mode='w', header=True, index=False)
 
     # Count statistics
     total = len(results)
     stage1_passed = sum(1 for r in results if r.get("stage1_passed", False))
     stage2_passed = sum(1 for r in results if r.get("stage2_passed", False))
 
-    click.echo(f"Saved {total} results to {batch_file}")
+    click.echo(f"Saved {total} results to {csv_file}")
     click.echo(f"  - Stage 1 passed: {stage1_passed}/{total}")
     click.echo(f"  - Stage 2 passed: {stage2_passed}/{total}")
 
 
 def get_last_checkpoint(save_path: Path) -> int:
-    """Find the last completed batch index."""
-    if not save_path.exists():
+    """Find the last completed batch index from the single CSV file."""
+    csv_file = save_path / "results.csv"
+    
+    if not csv_file.exists():
         return -1
-
-    batch_files = list(save_path.glob("batch_*.csv"))
-    if not batch_files:
+    
+    try:
+        df = pd.read_csv(csv_file)
+        if "batch_idx" in df.columns and len(df) > 0:
+            return int(df["batch_idx"].max())
         return -1
-
-    # Extract batch numbers and find max
-    batch_numbers = []
-    for f in batch_files:
-        try:
-            batch_num = int(f.stem.split("_")[1])
-            batch_numbers.append(batch_num)
-        except (IndexError, ValueError):
-            continue
-
-    return max(batch_numbers) if batch_numbers else -1
+    except Exception as e:
+        click.echo(f"Error reading checkpoint: {e}")
+        return -1
 
 
 @click.command()
 @click.option(
     "--data-path",
     type=click.Path(exists=True, path_type=Path),
-    default=Path("data_multi_page/label.xlsx"),
+    default=Path("data_multi_page/label_with_description.xlsx"),
     help="Path to label.xlsx file",
 )
 @click.option(
@@ -414,7 +421,7 @@ def get_last_checkpoint(save_path: Path) -> int:
 @click.option(
     "--threshold",
     type=float,
-    default=0.3,
+    default=0.0,
     help="Information gain threshold for stage 1 verification",
 )
 @click.option(
@@ -459,6 +466,12 @@ def get_last_checkpoint(save_path: Path) -> int:
     help="Resume from last checkpoint",
 )
 @click.option("--subset", default=None, type=int)
+@click.option(
+    "--description-column",
+    type=str,
+    default="Anthropic_GT_1",
+    help="Column name containing image descriptions",
+)
 def main(
     data_path: Path,
     image_base_path: Path,
@@ -474,6 +487,7 @@ def main(
     max_tokens: int,
     resume: bool,
     subset: int | None,
+    description_column: str,
 ):
     """Generate and verify multi-hop questions from multi-page documents."""
     load_dotenv()
@@ -493,7 +507,7 @@ def main(
     }
 
     # Load data
-    df = load_and_prepare_data(data_path, image_base_path)
+    df = load_and_prepare_data(data_path, image_base_path, description_column)
     if subset is not None:
         # Sample documents (not rows) and limit pages per document
         click.echo(f"Applying subset sampling: {subset} documents with max {subset} pages each")
@@ -553,6 +567,7 @@ def main(
                 semaphore_limit=semaphore_limit,
                 sampling_params=sampling_params,
                 api_key=os.environ["ANTHROPIC_API_KEY"],
+                description_column=description_column,
             )
         )
 
