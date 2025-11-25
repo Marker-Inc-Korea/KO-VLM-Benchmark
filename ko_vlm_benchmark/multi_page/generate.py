@@ -95,5 +95,66 @@ async def generate_two_hop_question(
     chat_response = await llm.achat(messages)
     response = chat_response.message.content
     if response is None:
-        return ""
+        raise NullResponseError
     return response.split(":")[-1].strip()
+
+
+async def generate_two_hop_answer(
+    multi_hop_question: str,
+    documents: list[str],
+    llm: BaseLLM,
+) -> str:
+    context_str = "\n\n".join([f"문서 {i + 1}: {doc}" for i, doc in enumerate(documents)])
+    prompt = (
+        "주어진 모든 문서를 참조해야만 하는, 주어진 답변에 대한 다단계(multi-hop) 질문에 대해 정확한 답변을 생성하세요."
+    )
+    messages = [
+        ChatMessage(role=MessageRole.SYSTEM, content=prompt),
+        ChatMessage(role=MessageRole.USER, content=f"{context_str}\n\n질문: {multi_hop_question}\n\n답변:"),
+    ]
+
+    chat_response = await llm.achat(messages)
+    response = chat_response.message.content
+    if response is None:
+        raise NullResponseError
+    return response.strip()
+
+
+async def generate_model_answer(
+    question: str,
+    image_paths: list[str],
+    api_key: str,
+    model: str = "claude-opus-4-5-20251101",
+    max_tokens: int = 2048,
+) -> str:
+    """
+    Generate a model answer for a given question using two document images.
+
+    Args:
+        question: The multi-hop question to answer.
+        image_paths: List of paths to image files.
+        api_key: Anthropic API key.
+        model: Model to use for answer generation.
+        max_tokens: Maximum tokens for the response.
+
+    Returns:
+        The generated model answer.
+    """
+    prompt = f"""다음은 두 개의 문서 이미지입니다. 주어진 질문에 대해 두 문서를 모두 참고하여 정확하고 상세한 답변을 생성하세요.
+
+질문: {question}
+
+답변:"""
+
+    response = await claude_multimodal_acomplete(
+        api_key=api_key,
+        image_path_list=image_paths,
+        user_text=prompt,
+        model=model,
+        max_tokens=max_tokens,
+    )
+
+    if response is None:
+        raise NullResponseError
+
+    return response

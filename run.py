@@ -15,7 +15,9 @@ from vllm import LLM
 from ko_vlm_benchmark.exceptions import MissingColumnError
 from ko_vlm_benchmark.multi_page.generate import (
     generate_desired_answer,
+    generate_model_answer,
     generate_original_query,
+    generate_two_hop_answer,
     generate_two_hop_question,
 )
 from ko_vlm_benchmark.multi_page.verifier import verify_multipage_question, verify_two_hop_queries
@@ -131,6 +133,13 @@ async def generate_questions_for_document(
                         original_query=original_query,
                         llm=base_llm,
                     )
+
+                    # Generate the two-hop answer using claude-sonnet-4-5
+                    two_hop_answer = await generate_two_hop_answer(
+                        multi_hop_question=question,
+                        documents=[orig_doc, added_doc],
+                        llm=base_llm,
+                    )
                 except Exception as e:
                     click.echo(f"Error generating question for {document_id}: {e}")
                     # Return error record instead of None
@@ -144,6 +153,7 @@ async def generate_questions_for_document(
                         "page_2_context": added_doc,
                         "generated_question": None,
                         "desired_answer": None,
+                        "two_hop_answer": None,
                         "original_query": None,
                         "generation_status": "failed",
                         "generation_error": str(e),
@@ -159,6 +169,7 @@ async def generate_questions_for_document(
                         "page_2_context": added_doc,
                         "generated_question": question,
                         "desired_answer": desired_answer,
+                        "two_hop_answer": two_hop_answer,
                         "original_query": original_query,
                         "generation_status": "success",
                         "generation_error": None,
@@ -207,7 +218,7 @@ async def verify_questions_stage1(
 
     queries = [q["generated_question"] for q in successful_questions]
     documents = [(q["page_1_context"], q["page_2_context"]) for q in successful_questions]
-    answers = [q["desired_answer"] for q in successful_questions]
+    answers = [q["two_hop_answer"] for q in successful_questions]
 
     info_gains = verify_two_hop_queries(
         queries=queries,
@@ -328,15 +339,51 @@ async def process_batch(
     )
 
     # Stage 2: Verify multipage requirement (returns all questions with stage2 results)
-    questions_with_all_results = await verify_questions_stage2(
+    questions_with_stage2 = await verify_questions_stage2(
         api_key=api_key,
         questions=questions_with_stage1,
         semaphore=semaphore,
         vote_count=vote_count,
     )
 
-    # Return all questions with their verification results
-    return questions_with_all_results
+    # Stage 3: Generate model answers for questions that passed stage 2
+    stage2_passed_questions = [q for q in questions_with_stage2 if q.get("stage2_passed", False)]
+    click.echo(f"Generating model answers for {len(stage2_passed_questions)} questions that passed stage 2")
+
+    async def generate_answer_with_semaphore(question: dict):
+        async with semaphore:
+            try:
+                model_answer = await generate_model_answer(
+                    question=question["generated_question"],
+                    image_paths=[question["page_1_image"], question["page_2_image"]],
+                    api_key=api_key,
+                    model="claude-opus-4-5-20251101",
+                )
+                question["model_answer"] = model_answer
+                question["model_answer_status"] = "success"
+            except Exception as e:
+                click.echo(f"Error generating model answer: {e}")
+                question["model_answer"] = None
+                question["model_answer_status"] = "failed"
+            return question
+
+    # Generate model answers for passed questions
+    if stage2_passed_questions:
+        tasks = [generate_answer_with_semaphore(q) for q in stage2_passed_questions]
+        await asyncio.gather(*tasks)
+
+    # Add model_answer fields to questions that didn't pass stage 2
+    for question in questions_with_stage2:
+        if not question.get("stage2_passed", False):
+            question["model_answer"] = None
+            question["model_answer_status"] = "skipped"
+
+    click.echo(
+        f"Model answers generated: {sum(1 for q in questions_with_stage2 if q.get('model_answer_status') == 'success')}/{len(stage2_passed_questions)}"
+    )
+
+    # Return all questions with their verification and answer results
+    return questions_with_stage2
 
 
 def save_checkpoint(results: list[dict], save_path: Path, batch_idx: int):
@@ -346,18 +393,18 @@ def save_checkpoint(results: list[dict], save_path: Path, batch_idx: int):
         return
 
     df_results = pd.DataFrame(results)
-    
+
     # Add batch index to the dataframe
     df_results["batch_idx"] = batch_idx
 
     # Single CSV file path
     csv_file = save_path / "results.csv"
-    
+
     # Append to existing file or create new one
     if csv_file.exists():
-        df_results.to_csv(csv_file, mode='a', header=False, index=False)
+        df_results.to_csv(csv_file, mode="a", header=False, index=False)
     else:
-        df_results.to_csv(csv_file, mode='w', header=True, index=False)
+        df_results.to_csv(csv_file, mode="w", header=True, index=False)
 
     # Count statistics
     total = len(results)
@@ -372,17 +419,18 @@ def save_checkpoint(results: list[dict], save_path: Path, batch_idx: int):
 def get_last_checkpoint(save_path: Path) -> int:
     """Find the last completed batch index from the single CSV file."""
     csv_file = save_path / "results.csv"
-    
+
     if not csv_file.exists():
         return -1
-    
+
     try:
         df = pd.read_csv(csv_file)
         if "batch_idx" in df.columns and len(df) > 0:
             return int(df["batch_idx"].max())
-        return -1
     except Exception as e:
         click.echo(f"Error reading checkpoint: {e}")
+        return -1
+    else:
         return -1
 
 

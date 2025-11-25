@@ -56,13 +56,21 @@ async def send_multimodal_request(
         return await resp.json()
 
 
-async def claude_multimodal_acomplete(api_key: str, image_path_list: list[str], user_text: str) -> str | None:
+async def claude_multimodal_acomplete(
+    api_key: str,
+    image_path_list: list[str],
+    user_text: str,
+    model: str = "claude-sonnet-4-5-20250929",
+    max_tokens: int = 1024,
+) -> str | None:
     # Encode all images concurrently
     image_base64_list = await asyncio.gather(*[encode_image_to_base64(image_path) for image_path in image_path_list])
 
     # Send a single request with all images
     async with aiohttp.ClientSession() as session:
-        result = await send_multimodal_request(session, api_key, image_base64_list, user_text)
+        result = await send_multimodal_request(
+            session, api_key, image_base64_list, user_text, model=model, max_tokens=max_tokens
+        )
 
     # Extract text from response
     if "content" in result and len(result["content"]) > 0:
