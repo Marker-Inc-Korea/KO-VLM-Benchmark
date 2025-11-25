@@ -9,9 +9,9 @@ from llama_index.core.base.llms.base import BaseLLM
 from llama_index.core.multi_modal_llms import MultiModalLLM
 from llama_index.core.schema import ImageNode
 from llama_index.llms.anthropic import Anthropic
-from llama_index.multi_modal_llms.anthropic import AnthropicMultiModal
 from tqdm import tqdm
 from vllm import LLM
+from dotenv import load_dotenv
 
 from ko_vlm_benchmark.multi_page.generate import (
     generate_desired_answer,
@@ -20,6 +20,7 @@ from ko_vlm_benchmark.multi_page.generate import (
 )
 from ko_vlm_benchmark.multi_page.verifier import verify_multipage_question, verify_two_hop_queries
 from ko_vlm_benchmark.exceptions import MissingColumnError
+from ko_vlm_benchmark.anthropic import AnthropicMultiModal
 
 
 def initialize_models(
@@ -149,10 +150,26 @@ async def generate_questions_for_document(
                         "generated_question": question,
                         "desired_answer": desired_answer,
                         "original_query": original_query,
+                        "generation_status": "success",
+                        "generation_error": None,
                     }
                 except Exception as e:
                     click.echo(f"Error generating question for {document_id}: {e}")
-                    return None
+                    # Return error record instead of None
+                    return {
+                        "document_id": document_id,
+                        "page_1_idx": orig_i,
+                        "page_2_idx": added_i,
+                        "page_1_image": orig_img,
+                        "page_2_image": added_img,
+                        "page_1_context": orig_doc,
+                        "page_2_context": added_doc,
+                        "generated_question": None,
+                        "desired_answer": None,
+                        "original_query": None,
+                        "generation_status": "failed",
+                        "generation_error": str(e),
+                    }
         
         task = generate_with_semaphore(
             orig_page["modified_visual_context"],
@@ -165,7 +182,8 @@ async def generate_questions_for_document(
         tasks.append(task)
     
     results = await asyncio.gather(*tasks)
-    return [r for r in results if r is not None]
+    # Return all results including failed ones
+    return results
 
 
 async def verify_questions_stage1(
@@ -181,9 +199,22 @@ async def verify_questions_stage1(
     
     click.echo(f"Stage 1 verification: Checking {len(questions)} questions with info gain threshold {threshold}")
     
-    queries = [q["generated_question"] for q in questions]
-    documents = [(q["page_1_context"], q["page_2_context"]) for q in questions]
-    answers = [q["desired_answer"] for q in questions]
+    # Separate successful and failed generations
+    successful_questions = [q for q in questions if q.get("generation_status") == "success"]
+    failed_questions = [q for q in questions if q.get("generation_status") == "failed"]
+    
+    # Mark failed generations
+    for question in failed_questions:
+        question["info_gain"] = None
+        question["stage1_passed"] = False
+    
+    if not successful_questions:
+        click.echo("No successful generations to verify")
+        return questions
+    
+    queries = [q["generated_question"] for q in successful_questions]
+    documents = [(q["page_1_context"], q["page_2_context"]) for q in successful_questions]
+    answers = [q["desired_answer"] for q in successful_questions]
     
     info_gains = verify_two_hop_queries(
         queries=queries,
@@ -194,15 +225,16 @@ async def verify_questions_stage1(
         **sampling_params,
     )
     
-    # Filter by threshold
-    verified = []
-    for question, info_gain in zip(questions, info_gains):
+    # Add info_gain and stage1_passed to successful questions
+    for question, info_gain in zip(successful_questions, info_gains):
         question["info_gain"] = info_gain
-        if info_gain >= threshold:
-            verified.append(question)
+        question["stage1_passed"] = info_gain >= threshold
     
-    click.echo(f"Stage 1 passed: {len(verified)}/{len(questions)} questions")
-    return verified
+    passed_count = sum(1 for q in questions if q.get("stage1_passed", False))
+    click.echo(f"Stage 1 passed: {passed_count}/{len(questions)} questions")
+    
+    # Return all questions, not just verified ones
+    return questions
 
 
 async def verify_questions_stage2(
@@ -218,6 +250,12 @@ async def verify_questions_stage2(
     click.echo(f"Stage 2 verification: Checking {len(questions)} questions with vote_count {vote_count}")
     
     async def verify_single(question: dict):
+        # Only verify if stage1 passed
+        if not question.get("stage1_passed", False):
+            question["stage2_decision"] = "skipped"
+            question["stage2_passed"] = False
+            return question
+        
         try:
             # Create ImageNode objects for the images
             image_documents = [
@@ -233,18 +271,23 @@ async def verify_questions_stage2(
                 vote_count=vote_count,
             )
             
-            question["multipage_verified"] = decision
-            return question if decision == "yes" else None
+            question["stage2_decision"] = decision
+            question["stage2_passed"] = (decision == "yes")
+            return question
         except Exception as e:
             click.echo(f"Error in stage 2 verification: {e}")
-            return None
+            question["stage2_decision"] = "error"
+            question["stage2_passed"] = False
+            return question
     
     tasks = [verify_single(q) for q in questions]
     results = await asyncio.gather(*tasks)
     
-    verified = [r for r in results if r is not None]
-    click.echo(f"Stage 2 passed: {len(verified)}/{len(questions)} questions")
-    return verified
+    passed_count = sum(1 for r in results if r and r.get("stage2_passed", False))
+    click.echo(f"Stage 2 passed: {passed_count}/{len(questions)} questions")
+    
+    # Return all questions with verification results
+    return results
 
 
 async def process_batch(
@@ -280,8 +323,13 @@ async def process_batch(
     
     click.echo(f"Generated {len(all_questions)} questions for batch")
     
-    # Stage 1: Verify with logprobs
-    stage1_verified = await verify_questions_stage1(
+    # Continue processing even if no questions generated
+    if not all_questions:
+        click.echo("Warning: No questions were generated for this batch")
+        return []
+    
+    # Stage 1: Verify with logprobs (returns all questions with stage1 results)
+    questions_with_stage1 = await verify_questions_stage1(
         questions=all_questions,
         vllm_llm=vllm_llm,
         tokenizer=tokenizer,
@@ -289,15 +337,16 @@ async def process_batch(
         sampling_params=sampling_params,
     )
     
-    # Stage 2: Verify multi-page requirement
-    stage2_verified = await verify_questions_stage2(
-        questions=stage1_verified,
+    # Stage 2: Verify multi-page requirement (returns all questions with stage2 results)
+    questions_with_all_results = await verify_questions_stage2(
+        questions=questions_with_stage1,
         mm_llm=mm_llm,
         semaphore=semaphore,
         vote_count=vote_count,
     )
     
-    return stage2_verified
+    # Return all questions with their verification results
+    return questions_with_all_results
 
 
 def save_checkpoint(results: list[dict], save_path: Path, batch_idx: int):
@@ -311,7 +360,15 @@ def save_checkpoint(results: list[dict], save_path: Path, batch_idx: int):
     # Create filename with batch index
     batch_file = save_path / f"batch_{batch_idx:04d}.csv"
     df_results.to_csv(batch_file, index=False)
-    click.echo(f"Saved {len(results)} results to {batch_file}")
+    
+    # Count statistics
+    total = len(results)
+    stage1_passed = sum(1 for r in results if r.get("stage1_passed", False))
+    stage2_passed = sum(1 for r in results if r.get("stage2_passed", False))
+    
+    click.echo(f"Saved {total} results to {batch_file}")
+    click.echo(f"  - Stage 1 passed: {stage1_passed}/{total}")
+    click.echo(f"  - Stage 2 passed: {stage2_passed}/{total}")
 
 
 def get_last_checkpoint(save_path: Path) -> int:
@@ -345,7 +402,7 @@ def get_last_checkpoint(save_path: Path) -> int:
 @click.option(
     "--image-base-path",
     type=click.Path(exists=True, path_type=Path),
-    default=Path("data_multi_page/images"),
+    default=Path("data_multi_page/images/images"),
     help="Base path for images",
 )
 @click.option(
@@ -353,6 +410,7 @@ def get_last_checkpoint(save_path: Path) -> int:
     type=click.Path(path_type=Path),
     required=True,
     help="Directory to save checkpoint CSV files",
+    default=Path("results"),
 )
 @click.option(
     "--batch-size",
@@ -440,6 +498,7 @@ def main(
     subset: int | None,
 ):
     """Generate and verify multi-hop questions from multi-page documents."""
+    load_dotenv()
     # Create save directory
     save_path.mkdir(parents=True, exist_ok=True)
     

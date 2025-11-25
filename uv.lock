@@ -17,6 +17,15 @@ wheels = [
 ]
 
 [[package]]
+name = "aiofiles"
+version = "25.1.0"
+source = { registry = "https://pypi.org/simple" }
+sdist = { url = "https://files.pythonhosted.org/packages/41/c3/534eac40372d8ee36ef40df62ec129bee4fdb5ad9706e58a29be53b2c970/aiofiles-25.1.0.tar.gz", hash = "sha256:a8d728f0a29de45dc521f18f07297428d56992a742f0cd2701ba86e44d23d5b2", size = 46354, upload-time = "2025-10-09T20:51:04.358Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/bc/8a/340a1555ae33d7354dbca4faa54948d76d89a27ceef032c8c3bc661d003e/aiofiles-25.1.0-py3-none-any.whl", hash = "sha256:abe311e527c862958650f9438e859c1fa7568a141b22abcd015e120e86a85695", size = 14668, upload-time = "2025-10-09T20:51:03.174Z" },
+]
+
+[[package]]
 name = "aiohappyeyeballs"
 version = "2.6.1"
 source = { registry = "https://pypi.org/simple" }
@@ -1065,6 +1074,15 @@ wheels = [
 ]
 
 [[package]]
+name = "et-xmlfile"
+version = "2.0.0"
+source = { registry = "https://pypi.org/simple" }
+sdist = { url = "https://files.pythonhosted.org/packages/d3/38/af70d7ab1ae9d4da450eeec1fa3918940a5fafb9055e934af8d6eb0c2313/et_xmlfile-2.0.0.tar.gz", hash = "sha256:dab3f4764309081ce75662649be815c4c9081e88f0837825f90fd28317d4da54", size = 17234, upload-time = "2024-10-25T17:25:40.039Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/c1/8b/5fe2cc11fee489817272089c4203e679c63b570a5aaeb18d852ae3cbba6a/et_xmlfile-2.0.0-py3-none-any.whl", hash = "sha256:7a91720bc756843502c3b7504c77b8fe44217c85c537d85037f0f536151b2caa", size = 18059, upload-time = "2024-10-25T17:25:39.051Z" },
+]
+
+[[package]]
 name = "evaluate"
 version = "0.4.6"
 source = { registry = "https://pypi.org/simple" }
@@ -1943,12 +1961,13 @@ name = "ko-vlm-benchmark"
 version = "0.0.1"
 source = { editable = "." }
 dependencies = [
+    { name = "aiofiles" },
     { name = "evaluate" },
     { name = "fire" },
     { name = "huggingface-hub" },
     { name = "llama-index" },
     { name = "llama-index-llms-anthropic" },
-    { name = "llama-index-multi-modal-llms-anthropic" },
+    { name = "openpyxl" },
     { name = "pandas" },
     { name = "qwen-vl-utils" },
     { name = "rouge-score" },
@@ -1972,12 +1991,13 @@ dev = [
 
 [package.metadata]
 requires-dist = [
+    { name = "aiofiles", specifier = ">=25.1.0" },
     { name = "evaluate", specifier = ">=0.4.6" },
     { name = "fire", specifier = ">=0.7.1" },
     { name = "huggingface-hub", specifier = ">=0.36.0" },
     { name = "llama-index", specifier = ">=0.12.52" },
     { name = "llama-index-llms-anthropic", specifier = ">=0.7.6" },
-    { name = "llama-index-multi-modal-llms-anthropic", specifier = ">=0.3.3" },
+    { name = "openpyxl", specifier = ">=3.1.5" },
     { name = "pandas", specifier = ">=2.3.3" },
     { name = "qwen-vl-utils", specifier = ">=0.0.14" },
     { name = "rouge-score", specifier = ">=0.1.2" },
@@ -2193,21 +2213,6 @@ dependencies = [
 sdist = { url = "https://files.pythonhosted.org/packages/d9/39/a7ce514fb500951e9edb713ed918a9ffe49f1a76fccfc531a4ec5c7fe15a/llama_index_llms_openai-0.4.7.tar.gz", hash = "sha256:564af8ab39fb3f3adfeae73a59c0dca46c099ab844a28e725eee0c551d4869f8", size = 24251, upload-time = "2025-06-16T03:38:47.175Z" }
 wheels = [
     { url = "https://files.pythonhosted.org/packages/61/e9/391926dad180ced6bb37a62edddb8483fbecde411239bd5e726841bb77b4/llama_index_llms_openai-0.4.7-py3-none-any.whl", hash = "sha256:3b8d9d3c1bcadc2cff09724de70f074f43eafd5b7048a91247c9a41b7cd6216d", size = 25365, upload-time = "2025-06-16T03:38:45.72Z" },
-]
-
-[[package]]
-name = "llama-index-multi-modal-llms-anthropic"
-version = "0.3.3"
-source = { registry = "https://pypi.org/simple" }
-dependencies = [
-    { name = "anthropic" },
-    { name = "filetype" },
-    { name = "llama-index-core" },
-    { name = "llama-index-llms-anthropic" },
-]
-sdist = { url = "https://files.pythonhosted.org/packages/6c/ac/6f08d1f2e7004386655d9cb4a56befaaa0d2624d9b92eaf287a5db3d4e2b/llama_index_multi_modal_llms_anthropic-0.3.3.tar.gz", hash = "sha256:596c09fd32e757514eed59079ee24e6313af900c8795df443b1a83404a1e4d51", size = 6447, upload-time = "2025-07-07T21:03:54.33Z" }
-wheels = [
-    { url = "https://files.pythonhosted.org/packages/43/bf/ea3d4b1aa3c763872e9c25971b446c84617c50de5abd47c00a0996d8fe69/llama_index_multi_modal_llms_anthropic-0.3.3-py3-none-any.whl", hash = "sha256:efcabf516e8f714e1851f9ab0ae540bab88731ca50d21be876e6b21bb0353120", size = 6675, upload-time = "2025-07-07T21:03:53.447Z" },
 ]
 
 [[package]]
@@ -3280,6 +3285,18 @@ wheels = [
     { url = "https://files.pythonhosted.org/packages/89/53/e19c21e0c4eb1275c3e2c97b081103b6dfb3938172264d283a519bf728b9/opencv_python_headless-4.12.0.88-cp37-abi3-manylinux2014_x86_64.manylinux_2_17_x86_64.whl", hash = "sha256:236c8df54a90f4d02076e6f9c1cc763d794542e886c576a6fee46ec8ff75a7a9", size = 54023419, upload-time = "2025-07-07T09:15:10.164Z" },
     { url = "https://files.pythonhosted.org/packages/bf/9c/a76fd5414de6ec9f21f763a600058a0c3e290053cea87e0275692b1375c0/opencv_python_headless-4.12.0.88-cp37-abi3-win32.whl", hash = "sha256:fde2cf5c51e4def5f2132d78e0c08f9c14783cd67356922182c6845b9af87dbd", size = 30225230, upload-time = "2025-07-07T09:15:17.045Z" },
     { url = "https://files.pythonhosted.org/packages/f2/35/0858e9e71b36948eafbc5e835874b63e515179dc3b742cbe3d76bc683439/opencv_python_headless-4.12.0.88-cp37-abi3-win_amd64.whl", hash = "sha256:86b413bdd6c6bf497832e346cd5371995de148e579b9774f8eba686dee3f5528", size = 38923559, upload-time = "2025-07-07T09:15:25.229Z" },
+]
+
+[[package]]
+name = "openpyxl"
+version = "3.1.5"
+source = { registry = "https://pypi.org/simple" }
+dependencies = [
+    { name = "et-xmlfile" },
+]
+sdist = { url = "https://files.pythonhosted.org/packages/3d/f9/88d94a75de065ea32619465d2f77b29a0469500e99012523b91cc4141cd1/openpyxl-3.1.5.tar.gz", hash = "sha256:cf0e3cf56142039133628b5acffe8ef0c12bc902d2aadd3e0fe5878dc08d1050", size = 186464, upload-time = "2024-06-28T14:03:44.161Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/c0/da/977ded879c29cbd04de313843e76868e6e13408a94ed6b987245dc7c8506/openpyxl-3.1.5-py2.py3-none-any.whl", hash = "sha256:5282c12b107bffeef825f4617dc029afaf41d0ea60823bbb665ef3079dc79de2", size = 250910, upload-time = "2024-06-28T14:03:41.161Z" },
 ]
 
 [[package]]
