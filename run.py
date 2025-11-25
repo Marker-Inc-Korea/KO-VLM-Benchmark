@@ -438,7 +438,7 @@ def get_last_checkpoint(save_path: Path) -> int:
 @click.option(
     "--llm-model",
     type=str,
-    default="claude-sonnet-4-20250514",
+    default="claude-sonnet-4-5-20250929",
     help="LlamaIndex LLM model for question generation",
 )
 @click.option(

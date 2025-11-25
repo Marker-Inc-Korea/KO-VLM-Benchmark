@@ -4,6 +4,7 @@ from llama_index.core.base.llms.base import BaseLLM
 from llama_index.core.base.llms.types import ChatMessage, MessageRole
 
 from ko_vlm_benchmark.anthropic import claude_multimodal_acomplete
+from ko_vlm_benchmark.exceptions import NullResponseError
 
 two_hop_incremental_prompt = [
     ChatMessage(
@@ -71,6 +72,8 @@ async def generate_desired_answer(
 
     # Use MultiModalLLM to generate answer with both text and image
     response = await claude_multimodal_acomplete(api_key, [image_path], prompt)
+    if response is None:
+        raise NullResponseError
     return response
 
 
