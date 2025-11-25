@@ -144,10 +144,14 @@ def calculate_info_gain(both_logprob: float, first_logprob: float, second_logpro
     """
     Calculate information gain.
     The higher it is, the better (which means it is likely to be the multi-hop question)
+
+    Uses simple difference between both_logprob and the max of individual logprobs.
+    Since logprobs are negative (closer to 0 = higher probability), a positive
+    difference indicates that having both documents improves answer quality.
     """
-    d1 = (both_logprob - first_logprob) / abs(both_logprob)
-    d2 = (both_logprob - second_logprob) / abs(both_logprob)
-    return min(d1, d2)
+    # both_logprob should be higher (less negative) than individual documents
+    # for a good multi-page question
+    return both_logprob - max(first_logprob, second_logprob)
 
 
 def calculate_prompt_logprobs(
