@@ -1,3 +1,4 @@
+import os
 from typing import Any
 
 import click
@@ -7,13 +8,17 @@ from llama_index.core.base.llms.base import BaseLLM
 from llama_index.llms.anthropic import Anthropic
 from vllm import LLM
 
-from ko_vlm_benchmark.multi_choice.generate_gemini import generate_wrong_answer_numerical
+from ko_vlm_benchmark.multi_choice.generate_gemini import (
+    generate_wrong_answer_explain,
+    generate_wrong_answer_meaning,
+    generate_wrong_answer_numerical,
+)
 
 """
 from ko_vlm_benchmark.multi_choice.generate_anthropic import (
     generate_wrong_answer_numerical,
     generate_wrong_answer_meaning,
-    generate_wrong_answer_order
+    generate_wrong_answer_explain
 )
 """
 
@@ -41,12 +46,13 @@ def main(
     dataset_path="./data_multi_page/results_sub_1.xlsx",
     llm_model="claude-sonnet-4-5-20250929",
     vllm_model="Qwen/Qwen3-8B",
-    api_key=None,
+    api_key="AIzaSyD8YEY-fr_0rGVqSlTFSGfYDn0eoXTDwUk",
+    save_path="./data_multi_page/results_multi_choice_sub_1.xlsx",
 ):
 
     # semaphore = asyncio.Semaphore(16)
 
-    # load model
+    # load model (if load claude, use this)
     # base_llm = initialize_models(
     #    # vllm_model_name=vllm_model,
     #    llm_model_name=llm_model,
@@ -54,10 +60,25 @@ def main(
 
     # load pandas
     df = pd.read_excel(dataset_path)
-    print("columns:", df.columns)
 
+    # new df
+    check_df = os.listdir("./data_multi_page")
+    if "results_multi_choice_sub_1.xlsx" in check_df:
+        new_df = pd.read_excel(save_path)
+        row_count = len(new_df)
+    else:
+        new_df = pd.DataFrame(
+            columns=[*df.columns.tolist(), "model_wrong_answer1", "model_wrong_answer2", "model_wrong_answer3"]
+        )
+        row_count = 0
+    print("columns:", new_df.columns)
+
+    # (kyujin) 11/29 gemini version
     # make 4 wrong answers
     for i in range(len(df)):
+        if (i + 1) <= row_count:
+            continue
+
         model_answer_status = df.iloc[i].model_answer_status.strip()
         if model_answer_status == "success":
             # 기본정보 불러오기
@@ -70,7 +91,7 @@ def main(
             question = df.iloc[i].generated_question.strip()
             gt_answer = df.iloc[i].model_answer.strip()
 
-            ######## we want hard cases
+            ######## we want hard cases (currently, not using context information)
             # first, make wrong answer (수치적)
             wrong_answer1 = generate_wrong_answer_numerical(
                 image_path1, image_path2, image1_context, image2_context, question, gt_answer, api_key
@@ -78,16 +99,34 @@ def main(
             print("## wrong_answer1:\n", wrong_answer1)
 
             # second, make wrong answer (의미적)
-            # wrong_answer2 = generate_wrong_answer_meaning(image_path1, image_path2, image1_context, image2_context, question, gt_answer, api_key)
+            wrong_answer2 = generate_wrong_answer_meaning(
+                image_path1, image_path2, image1_context, image2_context, question, gt_answer, api_key
+            )
+            print("## wrong_answer2:\n", wrong_answer2)
 
-            # third, maek wrong answer (인과관계)
-            # wrong_answer3 = generate_wrong_answer_order(image_path1, image_path2, image1_context, image2_context, question, gt_answer, api_key)
+            # third, maek wrong answer (풀이과정)
+            wrong_answer3 = generate_wrong_answer_explain(
+                image_path1, image_path2, image1_context, image2_context, question, gt_answer, api_key
+            )
+            print("## wrong_answer3:\n", wrong_answer3)
 
             ######### Verify, is it hard case?
 
         else:
             # print('skip this row. because of failed case')
+            wrong_answer1 = ""
+            wrong_answer2 = ""
+            wrong_answer3 = ""
             pass
+
+        # saving
+        new_row = df.iloc[i].tolist()
+        new_row = [*new_row, wrong_answer1, wrong_answer2, wrong_answer3]
+
+        new_df.loc[i] = new_row
+        new_df.to_excel(save_path, index=False)
+
+        break
 
     print("## finish")
 
