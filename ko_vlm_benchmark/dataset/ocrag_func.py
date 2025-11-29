@@ -119,7 +119,7 @@ OCR 결과:"""
             image = Image.open(img_path)
 
             ## prompt
-            query = """당신은 Optical Character Recognition (OCR)을 수행하는 AI assistant 입니다.
+            query = """<image>\n당신은 Optical Character Recognition (OCR)을 수행하는 AI assistant 입니다.
 다음 주어진 문서에 나타난 한국어 텍스트 문단을 모두 반영하고, 이미지/도식 중 중요하지 않은 내용은 반영하지 않습니다.
 이때 텍스트는 그대로 적고, 이미지/도식은 [image]~[/image]라는 구분기호와 적절한 설명으로 대체하여 적어야합니다.
 OCR 결과:"""
