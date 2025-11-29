@@ -46,7 +46,7 @@ def main(
     dataset_path="./data_multi_page/results_sub_1.xlsx",
     llm_model="claude-sonnet-4-5-20250929",
     vllm_model="Qwen/Qwen3-8B",
-    api_key="AIzaSyD8YEY-fr_0rGVqSlTFSGfYDn0eoXTDwUk",
+    api_key=None,
     save_path="./data_multi_page/results_multi_choice_sub_1.xlsx",
 ):
 
