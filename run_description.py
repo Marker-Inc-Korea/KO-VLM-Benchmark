@@ -29,7 +29,11 @@ def load_checkpoint(output_path: Path) -> tuple[pd.DataFrame | None, set]:
     if output_path.exists():
         df = pd.read_excel(output_path)
         # Find rows where Anthropic_GT_1 is None, empty, or NA (failed rows)
-        failed_mask = df['Anthropic_GT_1'].isna() | (df['Anthropic_GT_1'] == '') | (df['Anthropic_GT_1'].astype(str).str.strip() == '')
+        failed_mask = (
+            df["Anthropic_GT_1"].isna()
+            | (df["Anthropic_GT_1"] == "")
+            | (df["Anthropic_GT_1"].astype(str).str.strip() == "")
+        )
         failed_indices = set(df[failed_mask].index.tolist())
         click.echo(f"Checkpoint found: {len(df)} rows already processed")
         if failed_indices:
@@ -129,7 +133,9 @@ def main(
         # Process only failed rows and new rows not yet in checkpoint
         processed_count = len(checkpoint_df)
         rows_to_process = list(failed_indices) + list(range(processed_count, len(dataset)))
-        click.echo(f"\nResume mode: Processing {len(failed_indices)} failed rows + {len(dataset) - processed_count} new rows")
+        click.echo(
+            f"\nResume mode: Processing {len(failed_indices)} failed rows + {len(dataset) - processed_count} new rows"
+        )
     else:
         # Process all rows from scratch
         rows_to_process = list(range(len(dataset)))
@@ -182,16 +188,16 @@ def main(
         for idx, result in enumerate(batch_results):
             dataset_idx = batch_result_indices[idx]
             status = result.pop("status", None)
-            
+
             # Update existing row or add new row
             if dataset_idx < len(results_df):
                 # Update existing row (for retry of failed rows)
-                for col in result.keys():
+                for col in result:
                     results_df.at[dataset_idx, col] = result[col]
             else:
                 # Add new row
                 results_df.loc[len(results_df)] = result
-                
+
             if status and status != "success":
                 click.echo(f"  Row {result['id']}: {status}")
 
