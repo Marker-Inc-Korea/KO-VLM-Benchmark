@@ -1,63 +1,65 @@
+import asyncio
 import os
-from typing import Any
+from typing import Literal
 
-import click
 import fire
 import pandas as pd
-from llama_index.core.base.llms.base import BaseLLM
-from llama_index.llms.anthropic import Anthropic
-from vllm import LLM
 
-from ko_vlm_benchmark.multi_choice.generate_gemini import (
-    generate_wrong_answer_explain,
-    generate_wrong_answer_meaning,
-    generate_wrong_answer_numerical,
-)
-
-"""
-from ko_vlm_benchmark.multi_choice.generate_anthropic import (
-    generate_wrong_answer_numerical,
-    generate_wrong_answer_meaning,
-    generate_wrong_answer_explain
-)
-"""
+from ko_vlm_benchmark.multi_choice import generate_anthropic, generate_gemini
 
 
-def initialize_models(
-    # vllm_model_name: str,
-    llm_model_name: str,
-) -> tuple[LLM, Any, BaseLLM]:
-    """Initialize all models at once to avoid redundant overhead."""
-    # Initialize vLLM for logprobs verification
-    # click.echo(f"Initializing vLLM model: {vllm_model_name}")
-    # vllm_llm = LLM(model=vllm_model_name, tensor_parallel_size=1, gpu_memory_utilization=0.8)
-    # tokenizer = vllm_llm.get_tokenizer()
+def generate_wrong_answers(
+    model_type: Literal["gemini", "anthropic"],
+    image_path1: str,
+    image_path2: str,
+    image1_context: str,
+    image2_context: str,
+    question: str,
+    gt_answer: str,
+    api_key: str,
+) -> tuple[str, str, str]:
+    """Generate three types of wrong answers using the specified model backend."""
+    if model_type == "gemini":
+        wrong_answer1 = generate_gemini.generate_wrong_answer_numerical(
+            image_path1, image_path2, image1_context, image2_context, question, gt_answer, api_key
+        )
+        wrong_answer2 = generate_gemini.generate_wrong_answer_meaning(
+            image_path1, image_path2, image1_context, image2_context, question, gt_answer, api_key
+        )
+        wrong_answer3 = generate_gemini.generate_wrong_answer_explain(
+            image_path1, image_path2, image1_context, image2_context, question, gt_answer, api_key
+        )
+    elif model_type == "anthropic":
+        # Anthropic functions are async, so we need to run them in an event loop
+        wrong_answer1 = asyncio.run(
+            generate_anthropic.generate_wrong_answer_numerical(
+                image_path1, image_path2, image1_context, image2_context, question, gt_answer, api_key
+            )
+        )
+        wrong_answer2 = asyncio.run(
+            generate_anthropic.generate_wrong_answer_meaning(
+                image_path1, image_path2, image1_context, image2_context, question, gt_answer, api_key
+            )
+        )
+        wrong_answer3 = asyncio.run(
+            generate_anthropic.generate_wrong_answer_explain(
+                image_path1, image_path2, image1_context, image2_context, question, gt_answer, api_key
+            )
+        )
+    else:
+        raise ValueError(f"Unsupported model_type: {model_type}. Use 'gemini' or 'anthropic'.")
 
-    # Initialize LlamaIndex BaseLLM for question generation
-    click.echo(f"Initializing BaseLLM: {llm_model_name}")
-    base_llm = Anthropic(model=llm_model_name)
-
-    return base_llm
+    return wrong_answer1, wrong_answer2, wrong_answer3
 
 
-# api key
-# generate multi choice question
-# there is desired answer
 def main(
-    dataset_path="./data_multi_page/results_sub_1.xlsx",
-    llm_model="claude-sonnet-4-5-20250929",
-    vllm_model="Qwen/Qwen3-8B",
-    api_key=None,
-    save_path="./data_multi_page/results_multi_choice_sub_1.xlsx",
+    dataset_path: str = "./data_multi_page/results_sub_1.xlsx",
+    model_type: Literal["gemini", "anthropic"] = "gemini",
+    api_key: str | None = None,
+    save_path: str = "./data_multi_page/results_multi_choice_sub_1.xlsx",
 ):
 
-    # semaphore = asyncio.Semaphore(16)
-
-    # load model (if load claude, use this)
-    # base_llm = initialize_models(
-    #    # vllm_model_name=vllm_model,
-    #    llm_model_name=llm_model,
-    # )
+    print(f"Using model type: {model_type}")
 
     # load pandas
     df = pd.read_excel(dataset_path)
@@ -92,26 +94,20 @@ def main(
             question = df.iloc[i].generated_question.strip()
             gt_answer = df.iloc[i].model_answer.strip()
 
-            ######## we want hard cases (currently, not using context information)
-            # first, make wrong answer (수치적)
-            wrong_answer1 = generate_wrong_answer_numerical(
-                image_path1, image_path2, image1_context, image2_context, question, gt_answer, api_key
+            # Generate wrong answers using the selected model backend
+            wrong_answer1, wrong_answer2, wrong_answer3 = generate_wrong_answers(
+                model_type=model_type,
+                image_path1=image_path1,
+                image_path2=image_path2,
+                image1_context=image1_context,
+                image2_context=image2_context,
+                question=question,
+                gt_answer=gt_answer,
+                api_key=api_key,
             )
-            print("## wrong_answer1:\n", wrong_answer1)
-
-            # second, make wrong answer (의미적)
-            wrong_answer2 = generate_wrong_answer_meaning(
-                image_path1, image_path2, image1_context, image2_context, question, gt_answer, api_key
-            )
-            print("## wrong_answer2:\n", wrong_answer2)
-
-            # third, maek wrong answer (풀이과정)
-            wrong_answer3 = generate_wrong_answer_explain(
-                image_path1, image_path2, image1_context, image2_context, question, gt_answer, api_key
-            )
-            print("## wrong_answer3:\n", wrong_answer3)
-
-            ######### Verify, is it hard case?
+            print("## wrong_answer1 (numerical):\n", wrong_answer1)
+            print("## wrong_answer2 (meaning):\n", wrong_answer2)
+            print("## wrong_answer3 (explain):\n", wrong_answer3)
 
         else:
             # print('skip this row. because of failed case')
