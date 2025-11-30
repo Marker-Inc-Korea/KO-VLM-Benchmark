@@ -30,6 +30,7 @@ dependencies = [
     "torch>=2.8.0",
     "transformers>=4.57.1",
     "vllm>=0.11.2",
+    "google-genai>=1.52.0",
 ]
 
 [project.urls]
