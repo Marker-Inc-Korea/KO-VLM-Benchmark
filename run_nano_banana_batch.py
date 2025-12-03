@@ -1,19 +1,23 @@
 """Batch processing script for Nano Banana Pipeline.
 
-This script processes large datasets through the pipeline with three separate commands:
+This script processes large datasets through the pipeline with four commands:
+
+Batch mode (for large datasets):
 1. `process` - Run Steps 1-4 for all items, generate JSONL for batch API
 2. `submit` - Submit the batch job to Gemini API
 3. `retrieve` - Check batch status and retrieve/save results
 
+Full mode (for smaller datasets):
+4. `run-all` - Run Steps 1-5 for all items in one go
+
 Usage:
-    # Step 1: Process dataset and generate batch requests
+    # Batch mode (3-step process)
     python run_nano_banana_batch.py process --input-excel data.xlsx --output-dir output/
-
-    # Step 2: Submit batch job (can do later)
     python run_nano_banana_batch.py submit --output-dir output/
-
-    # Step 3: Retrieve results (can check periodically)
     python run_nano_banana_batch.py retrieve --output-dir output/
+
+    # Full mode (single command)
+    python run_nano_banana_batch.py run-all --input-excel data.xlsx --output-dir output/
 """
 
 import asyncio
@@ -33,8 +37,12 @@ from ko_vlm_benchmark.nano_banana_pipeline import (
     PartialPipelineOutput,
     PipelineConfig,
     PipelineInput,
+    PipelineOutput,
 )
 from ko_vlm_benchmark.nano_banana_pipeline.chains import build_batch_request
+
+# Type alias for pipeline outputs
+PipelineResult = PartialPipelineOutput | PipelineOutput
 
 logger = logging.getLogger("KoVLMBenchmark")
 logger.setLevel(logging.INFO)
@@ -46,12 +54,15 @@ async def process_dataset(
     pipeline: NanoBananaPipeline,
     image_path_col: str,
     visual_desc_col: str,
-    max_concurrent: int = 5,
-) -> list[tuple[int, PartialPipelineOutput | None, str | None]]:
-    """Process all dataset items through Steps 1-4."""
+    max_concurrent: int = 8,
+) -> list[tuple[int, PipelineResult | None, str | None]]:
+    """Process all dataset items through the pipeline.
+
+    Works with both partial (Steps 1-4) and full (Steps 1-5) pipeline modes.
+    """
     semaphore = asyncio.Semaphore(max_concurrent)
 
-    async def process_row(idx: int, row: pd.Series) -> tuple[int, PartialPipelineOutput | None, str | None]:
+    async def process_row(idx: int, row: pd.Series) -> tuple[int, PipelineResult | None, str | None]:
         async with semaphore:
             try:
                 input_data = PipelineInput(
@@ -62,7 +73,7 @@ async def process_dataset(
             except Exception as e:
                 return (idx, None, str(e))
             else:
-                return (idx, result, None)  # type: ignore[return-value]
+                return (idx, result, None)
             finally:
                 logger.info(f"Processed row {idx}")
 
@@ -329,6 +340,126 @@ def retrieve(output_dir: Path) -> None:
     click.echo(f"Done: {saved} images saved, {failed} failed")
     click.echo(f"Results saved to {results_path}")
     click.echo(f"Images saved to {images_dir}")
+
+
+def save_full_results(
+    outputs: list[tuple[int, PipelineResult | None, str | None]],
+    output_dir: Path,
+) -> tuple[int, int]:
+    """Save full pipeline results including generated images.
+
+    Returns:
+        Tuple of (success_count, failure_count).
+    """
+    images_dir = output_dir / "generated_images"
+    images_dir.mkdir(exist_ok=True)
+
+    results: list[dict] = []
+    success_count = 0
+    failure_count = 0
+
+    for idx, output, error in outputs:
+        if output is None or error is not None:
+            results.append({
+                "index": idx,
+                "output": None,
+                "image_path": None,
+                "error": error,
+            })
+            failure_count += 1
+            continue
+
+        # Save generated image if present (full pipeline output)
+        image_path = None
+        if output.get("generated_image_bytes"):
+            image_path = images_dir / f"generated_{idx}.png"
+            with open(image_path, "wb") as f:
+                f.write(output["generated_image_bytes"])
+            image_path = str(image_path)
+
+        # Create serializable output (exclude raw image bytes)
+        serializable_output = {k: v for k, v in dict(output).items() if k != "generated_image_bytes"}
+
+        results.append({
+            "index": idx,
+            "output": serializable_output,
+            "image_path": image_path,
+            "error": None,
+        })
+        success_count += 1
+
+    # Save results JSON
+    results_path = output_dir / "full_results.json"
+    with open(results_path, "w") as f:
+        json.dump(results, f, ensure_ascii=False, indent=2)
+
+    return success_count, failure_count
+
+
+@cli.command()
+@click.option(
+    "--input-excel",
+    type=click.Path(exists=True, path_type=Path),
+    required=True,
+    help="Input Excel file with dataset",
+)
+@click.option(
+    "--output-dir",
+    type=click.Path(path_type=Path),
+    default=Path("output/nano_banana_full"),
+    help="Output directory for results",
+)
+@click.option("--image-path-col", type=str, default="image_path")
+@click.option("--visual-desc-col", type=str, default="visual_description")
+@click.option("--max-concurrent", type=int, default=3, help="Max concurrent requests (lower for image generation)")
+def run_all(
+    input_excel: Path,
+    output_dir: Path,
+    image_path_col: str,
+    visual_desc_col: str,
+    max_concurrent: int,
+) -> None:
+    """Run the full pipeline (Steps 1-5) for all items.
+
+    This runs Steps 1-5 synchronously without batch API.
+    Suitable for smaller datasets or when immediate results are needed.
+    """
+    output_dir.mkdir(parents=True, exist_ok=True)
+
+    # Load dataset
+    click.echo(f"Loading dataset from {input_excel}...")
+    df = pd.read_excel(input_excel)
+    click.echo(f"Loaded {len(df)} rows")
+
+    # Initialize full pipeline (with image generation)
+    config = PipelineConfig(skip_image_generation=False)
+    pipeline = NanoBananaPipeline(config)
+
+    # Process all items through Steps 1-5
+    click.echo("Running Steps 1-5 (full pipeline with image generation)...")
+    start_time = time.time()
+
+    outputs = asyncio.run(
+        process_dataset(
+            df=df,
+            pipeline=pipeline,
+            image_path_col=image_path_col,
+            visual_desc_col=visual_desc_col,
+            max_concurrent=max_concurrent,
+        )
+    )
+
+    elapsed = time.time() - start_time
+    click.echo(f"Pipeline complete in {elapsed:.1f}s")
+
+    # Save results
+    click.echo("Saving results...")
+    success_count, failure_count = save_full_results(outputs, output_dir)
+
+    click.echo(f"\nDone: {success_count} successes, {failure_count} failures")
+    click.echo(f"Results saved to {output_dir / 'full_results.json'}")
+    if success_count > 0:
+        click.echo(f"Images saved to {output_dir / 'generated_images'}")
 
 
 if __name__ == "__main__":
