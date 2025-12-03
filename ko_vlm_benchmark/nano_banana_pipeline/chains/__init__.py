@@ -30,7 +30,5 @@ __all__ = [
     "SingleHopQAChain",
     "build_batch_request",
     "build_full_prompt",
-    "create_document_content_chain",
-    "create_image_generation_chain",
     "get_mime_type",
 ]
