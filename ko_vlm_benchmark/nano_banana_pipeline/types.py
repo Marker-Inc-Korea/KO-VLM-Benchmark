@@ -21,7 +21,6 @@ class PipelineInput(TypedDict):
 
     image_path: str | Path
     visual_description: str
-    doc_type: str
 
 
 class SingleHopResult(TypedDict):
@@ -82,7 +81,6 @@ class PartialPipelineOutput(TypedDict):
 
     # Step 3 outputs
     hypothetical_document_content: str
-    hypothetical_document_type: str
 
     # Step 4 outputs
     image_generation_prompt: str
