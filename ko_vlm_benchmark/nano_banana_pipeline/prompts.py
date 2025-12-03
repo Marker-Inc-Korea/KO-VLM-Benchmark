@@ -17,11 +17,18 @@ SingleHopQAOutput = {
 }
 
 
-class MultiHopQuestionOutput(BaseModel):
-    """Structured output for Step 2: Multi-hop question generation."""
-
-    multi_hop_question: str = Field(description="원본 문서 정보와 외부 정보를 모두 필요로 하는 다단계 질문")
-    additional_info_needed: str = Field(description="답변을 위해 외부에서 필요한 정보에 대한 설명")
+MultiHopQuestionOutput = {
+    "type": "json_schema",
+    "schema": {
+        "type": "object",
+        "properties": {
+            "multi_hop_question": {"type": "string"},
+            "additional_info_needed": {"type": "string"},
+        },
+        "required": ["multi_hop_question", "additional_info_needed"],
+        "additionalProperties": False,
+    },
+}
 
 
 class DocumentContentOutput(BaseModel):

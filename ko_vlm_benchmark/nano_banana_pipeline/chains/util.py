@@ -27,3 +27,10 @@ def _extract_search_results(response: Any) -> list[SearchResult]:
                     )
 
     return results
+
+
+def _get_last_text_block_content(response):
+    for block in reversed(response.content):
+        if getattr(block, "type", None) == "text":
+            return block.text
+    raise ValueError("No text block in response.content")

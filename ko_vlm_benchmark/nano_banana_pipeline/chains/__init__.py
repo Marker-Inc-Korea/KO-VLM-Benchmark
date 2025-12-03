@@ -8,7 +8,7 @@ from .image_generation import (
     get_mime_type,
 )
 from .image_prompt import ImagePromptChain, create_image_prompt_chain
-from .multi_hop_question import MultiHopQuestionChain, create_multi_hop_question_chain
+from .multi_hop_question import MultiHopQuestionChain
 from .single_hop_qa import SingleHopQAChain
 
 
@@ -33,6 +33,5 @@ __all__ = [
     "create_document_content_chain",
     "create_image_generation_chain",
     "create_image_prompt_chain",
-    "create_multi_hop_question_chain",
     "get_mime_type",
 ]
