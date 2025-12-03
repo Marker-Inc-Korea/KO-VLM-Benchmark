@@ -1,6 +1,5 @@
 """Prompt templates and structured output schemas for the nano banana pipeline."""
 
-from pydantic import BaseModel, Field
 
 # =============================================================================
 # Structured Output Schemas (Pydantic Models)
@@ -31,12 +30,18 @@ MultiHopQuestionOutput = {
 }
 
 
-class ImagePromptOutput(BaseModel):
-    """Structured output for Step 4: Image generation prompt creation."""
-
-    style_description: str = Field(description="원본 문서의 시각적 스타일에 대한 설명")
-    image_prompt: str = Field(description="영어로 작성된 상세한 이미지 생성 프롬프트")
-
+ImagePromptOutput = {
+    "type": "json_schema",
+    "schema": {
+        "type": "object",
+        "properties": {
+            "style_description": {"type": "string"},
+            "image_prompt": {"type": "string"},
+        },
+        "required": ["style_description", "image_prompt"],
+        "additionalProperties": False,
+    },
+}
 
 # =============================================================================
 # Step 1: Single-hop Q&A Generation (TEXT ONLY)
@@ -105,22 +110,20 @@ DOCUMENT_CONTENT_USER = """Multi-hop 질문: {multi_hop_question}
 
 IMAGE_PROMPT_SYSTEM = """당신은 문서 이미지 생성을 위한 상세한 프롬프트를 작성하는 AI입니다.
 
-주어진 문서 내용과 원본 문서 스타일 설명을 바탕으로,
-Gemini 이미지 생성 모델을 위한 상세한 영어 프롬프트를 작성합니다.
+주어진 문서 내용을 바탕으로,
+Gemini 이미지 생성 모델을 위한 상세한 한국어 프롬프트를 작성합니다.
 
 프롬프트 작성 지침:
 1. 원본 문서의 시각적 스타일(레이아웃, 색상, 폰트 스타일, 문서 형식 등)을 설명해야 합니다.
 2. 생성할 문서의 구체적인 내용을 포함해야 합니다.
 3. 표, 차트, 그래프 등 복잡한 구조를 명시해야 합니다.
 4. 전문적이고 공식적인 문서 스타일을 유지해야 합니다.
-5. 프롬프트는 반드시 영어로 작성해야 합니다."""
+5. 프롬프트는 반드시 한국어로 작성해야 합니다."""
 
 IMAGE_PROMPT_USER = """원본 문서 설명: {visual_description}
 
 생성할 문서 내용:
 {document_content}
-
-문서 유형: {document_type}
 
 위 정보를 바탕으로 이미지 생성 프롬프트를 작성해주세요.
 프롬프트는 영어로 작성하고, 이미지 생성 모델이 이해할 수 있도록 구체적으로 작성해주세요."""
