@@ -31,13 +31,6 @@ MultiHopQuestionOutput = {
 }
 
 
-class DocumentContentOutput(BaseModel):
-    """Structured output for Step 3: Document content generation."""
-
-    document_type: str = Field(description="문서 유형 (표/차트/보고서/통계자료 등)")
-    document_content: str = Field(description="생성된 문서 내용 - 표, 차트, 텍스트 등 포함")
-
-
 class ImagePromptOutput(BaseModel):
     """Structured output for Step 4: Image generation prompt creation."""
 
@@ -102,7 +95,6 @@ multi-hop 질문에 답하기 위해 필요한 "추가 정보"를 담은 새로�
 
 DOCUMENT_CONTENT_USER = """Multi-hop 질문: {multi_hop_question}
 필요한 추가 정보: {additional_info_needed}
-원본 문서 유형: {doc_type}
 
 위 정보를 바탕으로 웹 검색을 수행하고, 가상의 문서 내용을 생성해주세요.
 이 문서는 원본 문서와 독립적이면서, multi-hop 질문에 답하기 위해 필요한 추가 정보를 담고 있어야 합니다."""

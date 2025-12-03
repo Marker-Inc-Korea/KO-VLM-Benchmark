@@ -44,7 +44,6 @@ class DocumentContentResult(TypedDict):
     """Output from Step 3: Document content generation."""
 
     document_content: str
-    document_type: str
     search_results: list[SearchResult]
 
 
