@@ -39,8 +39,6 @@ def test_multi_hop_question_invoke(chain: MultiHopQuestionChain) -> None:
 
     assert "multi_hop_question" in result
     assert "additional_info_needed" in result
-    assert "search_results" in result
     assert isinstance(result["multi_hop_question"], str)
     assert isinstance(result["additional_info_needed"], str)
-    assert isinstance(result["search_results"], list)
     assert len(result["multi_hop_question"]) > 0

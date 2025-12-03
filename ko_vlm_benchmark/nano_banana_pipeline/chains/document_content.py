@@ -41,6 +41,7 @@ class DocumentContentChain:
         self,
         multi_hop_question: str,
         additional_info_needed: str,
+        visual_description: str,
     ) -> DocumentContentResult:
         """Generate hypothetical document content using web search.
 
@@ -58,6 +59,7 @@ class DocumentContentChain:
         user_message = DOCUMENT_CONTENT_USER.format(
             multi_hop_question=multi_hop_question,
             additional_info_needed=additional_info_needed,
+            visual_description=visual_description,
         )
 
         # Call Anthropic API with web search tool and structured output
@@ -85,8 +87,9 @@ class DocumentContentChain:
         self,
         multi_hop_question: str,
         additional_info_needed: str,
+        visual_description: str,
     ) -> DocumentContentResult:
         """Async version of invoke."""
         import asyncio
 
-        return await asyncio.to_thread(self.invoke, multi_hop_question, additional_info_needed)
+        return await asyncio.to_thread(self.invoke, multi_hop_question, additional_info_needed, visual_description)

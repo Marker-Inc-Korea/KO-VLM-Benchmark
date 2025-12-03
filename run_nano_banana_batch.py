@@ -18,6 +18,7 @@ Usage:
 
 import asyncio
 import json
+import logging
 import time
 from pathlib import Path
 
@@ -34,6 +35,10 @@ from ko_vlm_benchmark.nano_banana_pipeline import (
     PipelineInput,
 )
 from ko_vlm_benchmark.nano_banana_pipeline.chains import build_batch_request
+
+logger = logging.getLogger("KoVLMBenchmark")
+logger.setLevel(logging.INFO)
+logger.addHandler(logging.StreamHandler())
 
 
 async def process_dataset(
@@ -58,6 +63,8 @@ async def process_dataset(
                 return (idx, None, str(e))
             else:
                 return (idx, result, None)  # type: ignore[return-value]
+            finally:
+                logger.info(f"Processed row {idx}")
 
     tasks = [process_row(int(idx), row) for idx, row in df.iterrows()]
     return list(await asyncio.gather(*tasks))

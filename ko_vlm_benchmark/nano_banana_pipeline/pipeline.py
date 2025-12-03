@@ -4,11 +4,11 @@ import asyncio
 from pathlib import Path
 
 from .chains import (
+    DocumentContentChain,
     ImageGenerationChain,
     ImagePromptChain,
     MultiHopQuestionChain,
     SingleHopQAChain,
-    create_document_content_chain,
 )
 from .config import PipelineConfig
 from .types import PartialPipelineOutput, PipelineInput, PipelineOutput
@@ -52,7 +52,7 @@ class NanoBananaPipeline:
         """Build all pipeline chains."""
         self.single_hop_chain = SingleHopQAChain(self.config)
         self.multi_hop_chain = MultiHopQuestionChain(self.config)
-        self.document_chain = create_document_content_chain(self.config)
+        self.document_chain = DocumentContentChain(self.config)
         self.image_prompt_chain = ImagePromptChain(self.config)
 
         # Only build image generation chain if not skipping
@@ -81,6 +81,7 @@ class NanoBananaPipeline:
         document_result = await self.document_chain.ainvoke(
             multi_hop_question=multi_hop_result["multi_hop_question"],
             additional_info_needed=multi_hop_result["additional_info_needed"],
+            visual_description=input_data["visual_description"],
         )
 
         # Step 4: Create image generation prompt (text only)

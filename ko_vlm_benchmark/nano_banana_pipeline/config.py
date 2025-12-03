@@ -18,7 +18,7 @@ class PipelineConfig(BaseModel):
     gemini_image_model: str = "gemini-2.5-flash-image"
 
     # Generation settings
-    max_tokens: int = 2048
+    max_tokens: int = 16384
     temperature: float = 1.0
 
     # Web search settings

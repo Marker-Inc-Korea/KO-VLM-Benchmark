@@ -10,10 +10,6 @@ from google.genai import types
 from ..config import PipelineConfig
 from ..types import GeneratedImageResult
 
-# =============================================================================
-# Shared utilities for both real-time and batch processing
-# =============================================================================
-
 
 def get_mime_type(image_path: str | Path) -> str:
     """Get MIME type from file extension."""
@@ -31,11 +27,11 @@ def get_mime_type(image_path: str | Path) -> str:
 def build_full_prompt(image_prompt: str) -> str:
     """Build the full prompt with style reference instructions."""
     return (
-        f"Generate a new document image following the visual style "
-        f"of the reference image provided. The new document should have:\n\n"
+        f"제공된 참조 이미지의 시각적 스타일을 따라 새로운 문서 이미지를 생성하세요. "
+        f"새 문서는 다음을 포함해야 합니다:\n\n"
         f"{image_prompt}\n\n"
-        f"Important: Match the layout, typography, color scheme, and overall "
-        f"aesthetic of the reference image, but with completely different content."
+        f"중요: 참조 이미지의 레이아웃, 타이포그래피, 색상 구성 및 전체적인 "
+        f"미학을 맞추되, 참조 이미지와는 완전히 다른 내용으로 작성해야 합니다."
     )
 
 

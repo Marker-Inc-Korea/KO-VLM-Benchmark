@@ -36,7 +36,6 @@ class MultiHopQuestionResult(TypedDict):
 
     multi_hop_question: str
     additional_info_needed: str
-    search_results: list[SearchResult]
 
 
 class DocumentContentResult(TypedDict):
