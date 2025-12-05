@@ -1,6 +1,5 @@
 """Step 5: Image generation chain using Gemini (Nano Banana Pro)."""
 
-import base64
 import uuid
 from pathlib import Path
 
@@ -36,6 +35,7 @@ def build_full_prompt(image_prompt: str) -> str:
 
 
 def build_batch_request(
+    client: genai.Client,
     original_image_path: str | Path,
     image_prompt: str,
 ) -> dict:
@@ -48,31 +48,18 @@ def build_batch_request(
     Returns:
         Request dict for Gemini batch API.
     """
-    # Read original image
-    with open(original_image_path, "rb") as f:
-        image_bytes = f.read()
-
-    mime_type = get_mime_type(original_image_path)
-    image_base64 = base64.b64encode(image_bytes).decode("utf-8")
+    image_file = client.files.upload(file=original_image_path)
     full_prompt = build_full_prompt(image_prompt)
 
     return {
         "contents": [
             {
                 "parts": [
-                    {
-                        "inline_data": {
-                            "mime_type": mime_type,
-                            "data": image_base64,
-                        }
-                    },
                     {"text": full_prompt},
+                    {"file_data": {"file_uri": image_file.uri, "mime_type": image_file.mime_type}},
                 ]
             }
-        ],
-        "generationConfig": {
-            "responseModalities": ["IMAGE", "TEXT"],
-        },
+        ]
     }
 
 

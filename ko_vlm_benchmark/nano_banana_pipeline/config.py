@@ -15,7 +15,7 @@ class PipelineConfig(BaseModel):
 
     # Model settings
     sonnet_model: str = "claude-sonnet-4-5-20250929"
-    gemini_image_model: str = "gemini-2.5-flash-image"
+    gemini_image_model: str = "gemini-3-pro-image-preview"
 
     # Generation settings
     max_tokens: int = 16384
@@ -29,7 +29,7 @@ class PipelineConfig(BaseModel):
     output_dir: Path = Field(default_factory=lambda: Path("output/generated_images"))
 
     # Batch mode settings
-    skip_image_generation: bool = False  # Skip Step 5 for batch processing
+    skip_image_generation: bool = True  # Skip Step 5 for batch processing
 
     model_config = {"arbitrary_types_allowed": True}
 
