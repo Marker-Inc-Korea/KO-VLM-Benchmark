@@ -82,6 +82,7 @@ async def process_dataset(
 
 
 def create_batch_jsonl(
+    client: genai.Client,
     partial_outputs: list[tuple[int, PartialPipelineOutput | None, str | None]],
     output_path: Path,
 ) -> int:
@@ -94,6 +95,7 @@ def create_batch_jsonl(
 
             # Use shared function from image_generation.py
             request = build_batch_request(
+                client,
                 original_image_path=partial_output["original_image_path"],
                 image_prompt=partial_output["image_generation_prompt"],
             )
@@ -177,7 +179,8 @@ def process(
     # Create JSONL for batch API
     jsonl_path = output_dir / "batch_requests.jsonl"
     click.echo("Creating batch JSONL...")
-    num_requests = create_batch_jsonl(partial_outputs, jsonl_path)
+    google_client = genai.Client(api_key=config.google_api_key)
+    num_requests = create_batch_jsonl(google_client, partial_outputs, jsonl_path)
     click.echo(f"Created {num_requests} batch requests at {jsonl_path}")
 
     # Save config info
@@ -220,12 +223,12 @@ def submit(output_dir: Path) -> None:
     client = genai.Client(api_key=config.google_api_key)
 
     click.echo(f"Uploading {jsonl_path}...")
-    uploaded_file = client.files.upload(file=jsonl_path)
+    uploaded_file = client.files.upload(file=jsonl_path, config={"mime_type": "application/jsonl"})
 
     click.echo("Submitting batch job...")
     batch_job = client.batches.create(
         model=f"models/{batch_config['gemini_model']}",
-        src=uploaded_file,
+        src=uploaded_file.name,
         config=types.CreateBatchJobConfig(display_name=f"nano_banana_batch_{int(time.time())}"),
     )
 
@@ -293,7 +296,7 @@ def retrieve(output_dir: Path) -> None:
     if hasattr(batch_job.dest, "inlined_responses") and batch_job.dest.inlined_responses:
         responses = batch_job.dest.inlined_responses
     elif hasattr(batch_job.dest, "file_name") and batch_job.dest.file_name:
-        result_file = client.files.download(name=batch_job.dest.file_name)
+        result_file = client.files.download(file=batch_job.dest.file_name)
         responses = [json.loads(line) for line in result_file.decode("utf-8").strip().split("\n")]
     else:
         click.echo("No results found in batch job")
