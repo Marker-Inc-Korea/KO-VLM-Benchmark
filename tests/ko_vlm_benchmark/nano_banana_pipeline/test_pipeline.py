@@ -52,4 +52,5 @@ def test_pipeline_run(pipeline: NanoBananaPipeline, test_image: Path) -> None:
 
     assert "single_hop_question" in result
     assert "multi_hop_question" in result
+    assert "multi_hop_question_style" in result
     assert "image_generation_prompt" in result

@@ -98,6 +98,7 @@ class NanoBananaPipeline:
             single_hop_reasoning=single_hop_result["reasoning"],
             multi_hop_question=multi_hop_result["multi_hop_question"],
             additional_info_needed=multi_hop_result["additional_info_needed"],
+            multi_hop_question_style=multi_hop_result["question_style"],
             hypothetical_document_content=document_result["document_content"],
             image_generation_prompt=image_prompt_result["image_prompt"],
             style_description=image_prompt_result["style_description"],

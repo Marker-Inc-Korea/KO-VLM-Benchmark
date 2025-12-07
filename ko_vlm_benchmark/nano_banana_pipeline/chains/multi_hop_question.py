@@ -1,6 +1,7 @@
 """Step 2: Multi-hop question generation chain with Anthropic web search."""
 
 import json
+import secrets
 
 import anthropic
 
@@ -8,6 +9,7 @@ from ..config import PipelineConfig
 from ..prompts import (
     MULTI_HOP_QUESTION_SYSTEM,
     MULTI_HOP_QUESTION_USER,
+    STYLE_INPUT_LIST,
     MultiHopQuestionOutput,
 )
 from ..types import MultiHopQuestionResult, SingleHopResult
@@ -39,14 +41,16 @@ class MultiHopQuestionChain:
         Returns:
             MultiHopQuestionResult with the generated question and search results.
         """
+        question_style = secrets.choice(STYLE_INPUT_LIST)
+
         # Format the user message
         user_message = MULTI_HOP_QUESTION_USER.format(
             single_hop_question=single_hop_result["question"],
             single_hop_answer=single_hop_result["answer"],
             visual_description=visual_description,
+            style_input=question_style,
         )
 
-        # Call Anthropic API with web search tool and structured output
         response = self.client.beta.messages.create(
             model=self.config.sonnet_model,
             max_tokens=self.config.max_tokens,
@@ -62,6 +66,7 @@ class MultiHopQuestionChain:
         return MultiHopQuestionResult(
             multi_hop_question=parsed["multi_hop_question"],
             additional_info_needed=parsed["additional_info_needed"],
+            question_style=question_style,
         )
 
     async def ainvoke(
