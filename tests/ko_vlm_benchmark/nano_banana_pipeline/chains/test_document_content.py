@@ -27,14 +27,15 @@ def chain(config: PipelineConfig) -> DocumentContentChain:
 
 def test_document_content_invoke(chain: DocumentContentChain) -> None:
     """Test that document content chain returns valid structured output."""
-    multi_hop_question = "How does the Q3 2024 revenue of 15 billion won compare to the industry average?"
-    additional_info_needed = "Industry average revenue for Q3 2024 in the same sector."
-    visual_description = "This is a Q3 2024 sales report. Total revenue is 15 billion won, up 15% year-over-year."
+    multi_hop_question = "걸그룹 에스파와 뉴진스의 멤버 수를 더하면 총 몇 명 입니까?"
+    multi_hop_answer = "에스파는 4명, 뉴진스는 5명이므로 총 9명입니다."
+    additional_info = (
+        "뉴진스의 멤버들에 대한 정보가 필요하다. 뉴진스는 민지, 하니, 다니엘, 해린, 혜인으로 구성되어 있다."
+    )
+    visual_description = "이것은 한국의 K-Pop 걸그룹 에스파에 대한 정보를 담고 있는 위키백과 문서이다. 에스파의 데뷔 연도, 앨범, 프로필 사진, 멤버 정보 들이 자세히 묘사되어 있는 웹페이지이다."
 
-    result = chain.invoke(multi_hop_question, additional_info_needed, visual_description)
+    result = chain.invoke(multi_hop_question, multi_hop_answer, additional_info, visual_description)
 
     assert "document_content" in result
-    assert "search_results" in result
     assert isinstance(result["document_content"], str)
-    assert isinstance(result["search_results"], list)
     assert len(result["document_content"]) > 0

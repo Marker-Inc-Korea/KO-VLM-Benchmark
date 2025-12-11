@@ -71,16 +71,17 @@ class NanoBananaPipeline:
         # Step 1: Generate single-hop Q&A (text only)
         single_hop_result = await self.single_hop_chain.ainvoke(input_data["visual_description"])
 
-        # Step 2: Generate multi-hop question with web search
+        # Step 2: Generate multi-hop question AND answer with web search
         multi_hop_result = await self.multi_hop_chain.ainvoke(
             single_hop_result=single_hop_result,
             visual_description=input_data["visual_description"],
         )
 
-        # Step 3: Generate document content with web search (additional info only)
+        # Step 3: Format document content (NO web search - uses Step 2 results)
         document_result = await self.document_chain.ainvoke(
             multi_hop_question=multi_hop_result["multi_hop_question"],
-            additional_info_needed=multi_hop_result["additional_info_needed"],
+            multi_hop_answer=multi_hop_result["multi_hop_answer"],
+            additional_info=multi_hop_result["additional_info"],
             visual_description=input_data["visual_description"],
         )
 
@@ -97,8 +98,11 @@ class NanoBananaPipeline:
             single_hop_answer=single_hop_result["answer"],
             single_hop_reasoning=single_hop_result["reasoning"],
             multi_hop_question=multi_hop_result["multi_hop_question"],
-            additional_info_needed=multi_hop_result["additional_info_needed"],
+            multi_hop_answer=multi_hop_result["multi_hop_answer"],
+            additional_info=multi_hop_result["additional_info"],
             multi_hop_question_style=multi_hop_result["question_style"],
+            search_queries=multi_hop_result["search_queries"],
+            search_results=multi_hop_result["search_results"],
             hypothetical_document_content=document_result["document_content"],
             image_generation_prompt=image_prompt_result["image_prompt"],
             style_description=image_prompt_result["style_description"],
