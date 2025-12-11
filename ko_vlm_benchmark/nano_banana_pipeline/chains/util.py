@@ -34,3 +34,14 @@ def _get_last_text_block_content(response):
         if getattr(block, "type", None) == "text":
             return block.text
     raise ValueError("No text block in response.content")
+
+
+def _get_all_text_content(response):
+    """모든 text 블록의 내용을 합쳐서 반환."""
+    texts = []
+    for block in response.content:
+        if getattr(block, "type", None) == "text":
+            texts.append(block.text)
+    if not texts:
+        raise ValueError("No text block in response.content")
+    return "\n".join(texts)
