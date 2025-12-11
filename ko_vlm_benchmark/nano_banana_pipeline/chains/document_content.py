@@ -10,7 +10,7 @@ from ..prompts import (
     DOCUMENT_CONTENT_USER,
 )
 from ..types import DocumentContentResult
-from .util import _extract_search_results, _get_last_text_block_content
+from .util import _extract_search_results, _get_all_text_content
 
 # Beta header for structured outputs
 STRUCTURED_OUTPUTS_BETA = "structured-outputs-2025-11-13"
@@ -76,7 +76,7 @@ class DocumentContentChain:
         search_results = _extract_search_results(response)
 
         # Extract parsed output
-        content = _get_last_text_block_content(response)
+        content = _get_all_text_content(response)
 
         return DocumentContentResult(
             document_content=content,
