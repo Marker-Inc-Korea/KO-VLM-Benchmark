@@ -36,6 +36,7 @@ class MultiHopQuestionResult(TypedDict):
 
     multi_hop_question: str
     additional_info_needed: str
+    question_style: str
 
 
 class DocumentContentResult(TypedDict):
@@ -77,6 +78,7 @@ class PartialPipelineOutput(TypedDict):
     # Step 2 outputs
     multi_hop_question: str
     additional_info_needed: str
+    multi_hop_question_style: str
 
     # Step 3 outputs
     hypothetical_document_content: str

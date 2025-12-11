@@ -18,7 +18,7 @@ check: ## Run code quality tools.
 .PHONY: test
 test: ## Test the code with pytest
 	@echo "🚀 Testing code: Running pytest"
-	@uv run python -m pytest --cov --cov-config=pyproject.toml --cov-report=xml -n auto
+	@uv run python -m pytest -n auto -m "not gpu"
 
 .PHONY: build
 build: clean-build ## Build wheel file

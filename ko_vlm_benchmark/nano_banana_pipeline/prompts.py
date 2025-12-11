@@ -60,28 +60,44 @@ SINGLE_HOP_QA_USER = """문서 이미지 설명:
 위 설명을 바탕으로 single-hop 질문과 답변을 생성해주세요."""
 
 # =============================================================================
-# Step 2: Multi-hop Question Generation (with web_search)
+# Step 2: Multi-hop Question Generation
 # =============================================================================
 
-MULTI_HOP_QUESTION_SYSTEM = """당신은 다단계(multi-hop) 질문을 생성하는 AI입니다.
+MULTI_HOP_QUESTION_SYSTEM = """당신은 외부 지식을 활용하여 주어진 문서로부터 다단계(multi-hop) 질문을 생성하는 AI 어시스턴트입니다.
+주어진 문서의 내용, single-hop 질문 및 답변을 바탕으로, 추가 정보가 필요한 multi-hop 질문을 생성해야합니다.
 
-주어진 single-hop 질문과 답변을 바탕으로, 추가 정보가 필요한 multi-hop 질문을 생성합니다.
+아래에 주어진 multi-hop 질문 생성을 할 때, 필요한 조건을 따르세요:
+1. 주어진 원본 문서의 정보(visual_description)를 기반으로, single-hop 질문이 만들어졌습니다.
+2. 주어진 원본 문서와 가상의 임의의 외부 문서가 있다고 가정을 합니다.
+3. Multi-hop은 질문은 주어진 원본 문서의 정보(visual_description)와 가상의 외부 문서의 정보를 모두 반영하도록 생성되어야 합니다.
+4. 생성된 Multi-hop 질문은 주어진 원본 문서 만으로는 완전한 답변이 불가능해야 합니다.
+5. 주어진 원본 문서와 생성된 multi-hop을 보고, 가상의 외부 문서에 어떠한 내용/도식 정보가 필요할지 제공해야합니다.
+6. 사용자가 원하는 질문 스타일에 맞는 multi-hop 질문을 생성해야합니다.
 
-multi-hop 질문의 조건:
-1. 원본 문서의 정보(visual_description)를 필요로 합니다.
-2. 추가적인 외부 정보도 필요로 합니다. 이 때, 추가적인 외부 정보는 그 어떤 것이던 이미 존재한다고 가정합니다.
-3. 두 정보를 종합해야만 완전한 답변이 가능해야 합니다.
-4. 두 문서 중 하나라도 없어지면 답할 수 없는 질문이어야 하며, 당연히 질문 내에 답변은 포함되지 않아야 합니다.
-
-Multi-hop 질문을 답하기 위한 정보가 모두 존재한다고 가정하고, multi-hop 질문을 생성하세요.
+Multi-hop 질문을 답하기 위한 정보가 원본 문서와 외부 문서에 골고루 존재한다고 가정하고, multi-hop 질문을 생성하세요.
 Multi-hop 질문을 생성한 이후에는, 기존의 주어진 문서 외에 multi-hop 질문에 답하기 위해 필요한 "추가 정보"가 무엇인지도 명시하세요.
+
+답변은 json 형태로 생성하며 답변 예시는 아래를 따라야 합니다:
+{
+    "multi_hop_question" : "[생성된 multi-hop 질문]",
+    "additional_info_needed" : "[multi-hop 질문에 답하기 위한 외부 문서에 필요한 정보]"
+}
 """
 
 MULTI_HOP_QUESTION_USER = """원본 질문: {single_hop_question}
 원본 답변: {single_hop_answer}
 문서 설명: {visual_description}
 
-위를 바탕으로 multi-hop 질문을 생성한 후, multi-hop 질문에 답하기 위해 필요한 "추가 정보"도 명시해주세요."""
+위를 바탕으로 {style_input}의 multi-hop 질문을 생성한 후, multi-hop 질문에 답하기 위해 필요한 "추가 정보"도 답변 예시에 맞게 명시해주세요."""
+
+
+# Step 2-1: style_input options
+STYLE_INPUT_LIST = [
+    "분석형 스타일",
+    "비교/대조 스타일",
+    "추론형 스타일",
+    "close-ended 스타일",
+]
 
 # =============================================================================
 # Step 3: Document Content Generation (with web_search for additional info)

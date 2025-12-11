@@ -3,9 +3,6 @@ import time
 from unittest.mock import AsyncMock, patch
 
 import pytest
-from vllm import LLM as vllm_LLM
-from vllm import SamplingParams
-from vllm_mock import LLM
 
 from ko_vlm_benchmark.multi_page.verifier import verify_multipage_question
 
@@ -95,7 +92,11 @@ async def test_verify_multipage_question_concurrency_and_voting(mock_claude_acom
     )
 
 
+@pytest.mark.gpu
 def test_calculate_prompt_logprobs():
+    from vllm import SamplingParams
+    from vllm_mock import LLM
+
     from ko_vlm_benchmark.multi_page.verifier import calculate_prompt_logprobs
 
     llm = LLM("mock-model")
@@ -112,6 +113,8 @@ def test_calculate_prompt_logprobs():
 
 @pytest.mark.gpu
 def test_verify_two_hop_queries():
+    from vllm import LLM as vllm_LLM
+
     queries = [
         "What is the capital of France and who is its current president?",
         "Name the largest planet in our solar system and its most famous moon.",

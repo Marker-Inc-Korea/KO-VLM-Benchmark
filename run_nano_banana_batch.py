@@ -125,15 +125,19 @@ def cli() -> None:
     default=Path("output/nano_banana_batch"),
     help="Output directory for results",
 )
-@click.option("--image-path-col", type=str, default="image_path")
-@click.option("--visual-desc-col", type=str, default="visual_description")
+@click.option("--image-path-col", type=str, default="img_path")
+@click.option("--visual-desc-col", type=str, default="Anthropic_GT_1")
 @click.option("--max-concurrent", type=int, default=5)
+@click.option("--start-idx", type=int, default=None, help="Start index for subset processing (inclusive)")
+@click.option("--end-idx", type=int, default=None, help="End index for subset processing (exclusive)")
 def process(
     input_excel: Path,
     output_dir: Path,
     image_path_col: str,
     visual_desc_col: str,
     max_concurrent: int,
+    start_idx: int | None,
+    end_idx: int | None,
 ) -> None:
     """Run Steps 1-4 and generate JSONL for batch API."""
     output_dir.mkdir(parents=True, exist_ok=True)
@@ -141,7 +145,15 @@ def process(
     # Load dataset
     click.echo(f"Loading dataset from {input_excel}...")
     df = pd.read_excel(input_excel)
-    click.echo(f"Loaded {len(df)} rows")
+    total_rows = len(df)
+    click.echo(f"Loaded {total_rows} rows")
+
+    # Apply subset filtering
+    if start_idx is not None or end_idx is not None:
+        start = start_idx if start_idx is not None else 0
+        end = end_idx if end_idx is not None else total_rows
+        df = df.iloc[start:end].reset_index(drop=True)
+        click.echo(f"Processing subset: rows {start} to {end} ({len(df)} rows)")
 
     # Initialize pipeline with skip_image_generation=True
     config = PipelineConfig(skip_image_generation=True)
