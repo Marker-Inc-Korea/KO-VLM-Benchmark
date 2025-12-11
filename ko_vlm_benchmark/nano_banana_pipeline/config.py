@@ -14,7 +14,8 @@ class PipelineConfig(BaseModel):
     google_api_key: str = Field(default_factory=lambda: os.environ.get("GOOGLE_API_KEY", ""))
 
     # Model settings
-    sonnet_model: str = "claude-sonnet-4-5-20250929"
+    # sonnet_model: str = "claude-sonnet-4-5-20250929"
+    sonnet_model: str = "claude-opus-4-5-20251101"
     gemini_image_model: str = "gemini-3-pro-image-preview"
 
     # Generation settings
