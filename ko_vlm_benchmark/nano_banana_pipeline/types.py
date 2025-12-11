@@ -40,6 +40,7 @@ class MultiHopQuestionResult(TypedDict):
     question_style: str
     search_queries: list[str]
     search_results: list[SearchResult]
+    thinking_trajectory: list[str]
 
 
 class DocumentContentResult(TypedDict):
@@ -84,6 +85,7 @@ class PartialPipelineOutput(TypedDict):
     multi_hop_question_style: str
     search_queries: list[str]
     search_results: list[SearchResult]
+    thinking_trajectory: list[str]
 
     # Step 3 outputs
     hypothetical_document_content: str

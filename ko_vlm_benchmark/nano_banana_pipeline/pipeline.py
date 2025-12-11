@@ -103,6 +103,7 @@ class NanoBananaPipeline:
             multi_hop_question_style=multi_hop_result["question_style"],
             search_queries=multi_hop_result["search_queries"],
             search_results=multi_hop_result["search_results"],
+            thinking_trajectory=multi_hop_result["thinking_trajectory"],
             hypothetical_document_content=document_result["document_content"],
             image_generation_prompt=image_prompt_result["image_prompt"],
             style_description=image_prompt_result["style_description"],

@@ -14,7 +14,12 @@ from ..prompts import (
     MultiHopQuestionOutput,
 )
 from ..types import MultiHopQuestionResult, SingleHopResult
-from .util import _extract_search_queries, _extract_search_results, _get_last_text_block_content
+from .util import (
+    _extract_search_queries,
+    _extract_search_results,
+    _extract_thinking_contents,
+    _get_last_text_block_content,
+)
 
 # Beta header for structured outputs
 STRUCTURED_OUTPUTS_BETA = "structured-outputs-2025-11-13"
@@ -80,6 +85,7 @@ class MultiHopQuestionChain:
         # Extract search queries and results from the response
         search_queries = _extract_search_queries(response)
         search_results = _extract_search_results(response)
+        thinking_trajectory = _extract_thinking_contents(response)
 
         # Extract parsed output from the last text block
         parsed = json.loads(_get_last_text_block_content(response))
@@ -91,6 +97,7 @@ class MultiHopQuestionChain:
             question_style=question_style,
             search_queries=search_queries,
             search_results=search_results,
+            thinking_trajectory=thinking_trajectory,
         )
 
     async def ainvoke(

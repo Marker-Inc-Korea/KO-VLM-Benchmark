@@ -43,12 +43,14 @@ def test_multi_hop_question_invoke(chain: MultiHopQuestionChain) -> None:
     assert "question_style" in result
     assert "search_queries" in result
     assert "search_results" in result
+    assert "thinking_trajectory" in result
     assert isinstance(result["multi_hop_question"], str)
     assert isinstance(result["multi_hop_answer"], str)
     assert isinstance(result["additional_info"], str)
     assert isinstance(result["question_style"], str)
     assert isinstance(result["search_queries"], list)
     assert isinstance(result["search_results"], list)
+    assert isinstance(result["thinking_trajectory"], list)
     assert len(result["multi_hop_question"]) > 0
     assert len(result["multi_hop_answer"]) > 0
     assert len(result["additional_info"]) > 0
