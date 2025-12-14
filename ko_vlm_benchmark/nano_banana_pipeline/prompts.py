@@ -22,9 +22,10 @@ MultiHopQuestionOutput = {
         "type": "object",
         "properties": {
             "multi_hop_question": {"type": "string"},
-            "additional_info_needed": {"type": "string"},
+            "multi_hop_answer": {"type": "string"},
+            "additional_info": {"type": "string"},
         },
-        "required": ["multi_hop_question", "additional_info_needed"],
+        "required": ["multi_hop_question", "multi_hop_answer", "additional_info"],
         "additionalProperties": False,
     },
 }
@@ -60,35 +61,62 @@ SINGLE_HOP_QA_USER = """문서 이미지 설명:
 위 설명을 바탕으로 single-hop 질문과 답변을 생성해주세요."""
 
 # =============================================================================
-# Step 2: Multi-hop Question Generation
+# Step 2: Multi-hop Question Generation (with web search)
 # =============================================================================
 
-MULTI_HOP_QUESTION_SYSTEM = """당신은 외부 지식을 활용하여 주어진 문서로부터 다단계(multi-hop) 질문을 생성하는 AI 어시스턴트입니다.
-주어진 문서의 내용, single-hop 질문 및 답변을 바탕으로, 추가 정보가 필요한 multi-hop 질문을 생성해야합니다.
+MULTI_HOP_QUESTION_SYSTEM = """당신은 웹 검색을 통해 외부 지식을 수집하고, 이를 활용하여 다단계(multi-hop) 질문과 답변을 생성하는 AI 어시스턴트입니다.
 
-아래에 주어진 multi-hop 질문 생성을 할 때, 필요한 조건을 따르세요:
+## 작업 순서:
+1. 먼저 웹 검색 도구를 사용하여 주어진 문서와 연결될 수 있는 관련 외부 정보를 검색하세요.
+2. 검색 결과를 바탕으로 multi-hop 질문, 답변, 그리고 추가 정보를 생성하세요.
+
+## Multi-hop 질문 생성 조건:
 1. 주어진 원본 문서의 정보(visual_description)를 기반으로, single-hop 질문이 만들어졌습니다.
-2. 주어진 원본 문서와 가상의 임의의 외부 문서가 있다고 가정을 합니다.
-3. Multi-hop은 질문은 주어진 원본 문서의 정보(visual_description)와 가상의 외부 문서의 정보를 모두 반영하도록 생성되어야 합니다.
-4. 생성된 Multi-hop 질문은 주어진 원본 문서 만으로는 완전한 답변이 불가능해야 합니다.
-5. 주어진 원본 문서와 생성된 multi-hop을 보고, 가상의 외부 문서에 어떠한 내용/도식 정보가 필요할지 제공해야합니다.
-6. 사용자가 원하는 질문 스타일에 맞는 multi-hop 질문을 생성해야합니다.
+2. 웹 검색으로 찾은 실제 외부 정보와 원래의 single-hop 질문을 결합하여 multi-hop 질문을 만듭니다.
+3. Multi-hop 질문은 원본 문서의 정보와 검색으로 찾은 외부 정보를 모두 활용해서 답변할 수 있어야 합니다.
+4. 생성된 Multi-hop 질문은 원본 문서만으로는 완전한 답변이 불가능해야 합니다.
+5. 사용자가 원하는 질문 스타일에 맞는 multi-hop 질문을 생성해야 합니다.
+6. multi-hop 질문은 간결해야 합니다. 원본 문서에 나와있는 정보를 반복하여 multi-hop 질문에 포함하지 마세요.
 
-Multi-hop 질문을 답하기 위한 정보가 원본 문서와 외부 문서에 골고루 존재한다고 가정하고, multi-hop 질문을 생성하세요.
-Multi-hop 질문을 생성한 이후에는, 기존의 주어진 문서 외에 multi-hop 질문에 답하기 위해 필요한 "추가 정보"가 무엇인지도 명시하세요.
+## Multi-hop 질문의 좋은 예시와 나쁜 예시
+### 좋은 예시
 
-답변은 json 형태로 생성하며 답변 예시는 아래를 따라야 합니다:
+- 원본 문서가 K-Pop 걸그룹 '에스파'에 대한 정보라면:
+    - single-hop 질문: "에스파의 멤버 수는 몇 명입니까?"
+    - multi-hop 질문: "걸그룹 에스파와 뉴진스의 멤버 수를 더하면 총 몇 명 입니까?"
+
+- 원본 문서가 윤석열 대통령의 계엄 선포 사실에 대한 뉴스 기사라면:
+    - single-hop 질문: "윤석열 대통령이 계엄을 선포한 일시는 언제입니까?"
+    - multi-hop 질문: "윤석열 대통령이 계엄을 선포할 당시 이준석 의원은 어디에서 무엇을 하고 있었습니까?"
+
+### 나쁜 예시
+
+- 원본 문서가 K-Pop 걸그룹 '에스파'에 대한 정보라면:
+    - single-hop 질문: "에스파의 멤버 수는 몇 명입니까?"
+    - 나쁜 multi-hop 질문: "에스파는 닝닝, 지젤, 카리나, 윈터 총 4명으로 이루어져있는데, 에스파와 뉴진스의 멤버 수를 더하면 총 몇 명 입니까?"
+- 원본 문서에 이미 답이 나와있는 정보를 반복하여 multi-hop 질문에 포함시키지 마세요.
+
+- 원본 문서가 윤석열 대통령의 계엄 선포 사실에 대한 뉴스 기사라면:
+    - single-hop 질문: "윤석열 대통령이 계엄을 선포한 일시는 언제입니까?"
+    - 나쁜 multi-hop 질문: "윤석열 대통령은 친위 쿠데타로서 계엄을 선포하였는데, 해당 일시는 언제입니까?"
+- 해당 질문에 답변을 하기 위해서는 여전히 single-hop 질문에 대한 답변만으로 충분합니다. 이는 multi-hop 질문이 아닙니다.
+
+## 출력 형식:
+웹 검색을 완료한 후, 다음 JSON 형태로 답변하세요:
 {
-    "multi_hop_question" : "[생성된 multi-hop 질문]",
-    "additional_info_needed" : "[multi-hop 질문에 답하기 위한 외부 문서에 필요한 정보]"
+    "multi_hop_question": "[생성된 multi-hop 질문]",
+    "multi_hop_answer": "[웹 검색 결과와 원본 문서를 모두를 기반으로 한 정답]",
+    "additional_info": "[multi-hop 질문에 답하기 위해 필요한 외부 정보 요약 - 검색에서 찾은 실제 정보]"
 }
-"""
+
+중요: additional_info는 웹 검색에서 실제로 찾은 정보를 기반으로 작성해야 하되, multi_hop_answer를 뒷받침하는 정보를 반드시 포함합니다."""
 
 MULTI_HOP_QUESTION_USER = """원본 질문: {single_hop_question}
 원본 답변: {single_hop_answer}
 문서 설명: {visual_description}
 
-위를 바탕으로 {style_input}의 multi-hop 질문을 생성한 후, multi-hop 질문에 답하기 위해 필요한 "추가 정보"도 답변 예시에 맞게 명시해주세요."""
+위를 바탕으로 먼저 웹 검색을 수행하여 관련 외부 정보를 찾은 후,
+{style_input}의 multi-hop 질문과 답변을 생성해주세요."""
 
 
 # Step 2-1: style_input options
@@ -100,31 +128,31 @@ STYLE_INPUT_LIST = [
 ]
 
 # =============================================================================
-# Step 3: Document Content Generation (with web_search for additional info)
+# Step 3: Document Content Formatting (NO web search - uses Step 2 results)
 # =============================================================================
 
-DOCUMENT_CONTENT_SYSTEM = """당신은 가상의 문서 내용을 생성하는 AI입니다.
+DOCUMENT_CONTENT_SYSTEM = """당신은 주어진 정보를 바탕으로 가상의 문서 내용을 포맷팅하는 AI입니다.
 
-multi-hop 질문에 답하기 위해 필요한 "추가 정보"를 담은 새로운 문서를 생성합니다.
+이미 수집된 추가 정보(additional_info)를 문서 형태로 변환합니다.
+웹 검색은 이미 완료되었으므로 추가 검색 없이 주어진 정보만 활용하세요.
 
 중요한 규칙:
 1. 원본 문서 설명(visual_description)의 정보와 완전히 독립적인 새로운 내용이어야 합니다.
-2. multi-hop 질문에 답하는 데 필요한 추가 정보를 참고하여, 해당 추가 정보와 관련한 내용까지 더불어서 생성합니다.
-3. 질문에 대한 답변을 생성하는 것이 아닙니다. 요청한 추가 정보에 대한 가상의 문서를 아주 자세하게 작성합니다. 자세한 정보가 포함될수록 좋습니다.
-4. 표, 차트, 그래프, 통계 등 시각적으로 볼 수 있는 정보들이 많을 수록 좋습니다.
-5. 웹 검색 도구를 사용하여 관련 정보를 조사하고, 해당 내용들을 문서에 포함하세요.
-6. 새로운 문서는 A4 용지 한 페이지 분량을 넘어가지 않아야 합니다. 공백 포함 1,500자에서 2,000자 내외로 작성해야 합니다.
-7. 문서는 한글로 작성하되, 필요한 경우 영어 등 다른 언어의 용어를 병기할 수 있습니다.
-
-웹 검색 도구를 사용하여 "필요한 추가 정보"에 대한 실제 데이터를 찾고,
-이를 바탕으로 가상의 문서 내용을 A4 한 페이지 내외로 생성하세요."""
+2. 주어진 추가 정보(additional_info)를 문서 형태로 풍부하게 확장하세요.
+3. multi-hop 질문의 정답(multi_hop_answer)이 이 문서에서 도출될 수 있어야 합니다.
+4. 표, 차트, 그래프, 통계 등 시각적으로 볼 수 있는 정보들이 많을수록 좋습니다.
+5. 새로운 문서는 A4 용지 한 페이지 분량을 넘어가지 않아야 합니다. 공백 포함 1,500자에서 2,000자 내외로 작성해야 합니다.
+6. 문서는 한글로 작성하되, 필요한 경우 영어 등 다른 언어의 용어를 병기할 수 있습니다.
+7. 반드시 문서만 출력하세요. 추가 설명이나 부가적인 텍스트는 포함하지 마세요."""
 
 DOCUMENT_CONTENT_USER = """원본 문서: {visual_description}
 Multi-hop 질문: {multi_hop_question}
-필요한 추가 정보: {additional_info_needed}
+Multi-hop 정답: {multi_hop_answer}
+추가 정보: {additional_info}
 
-위 정보를 바탕으로 웹 검색을 수행하고, 가상의 문서 내용을 생성해주세요.
-이 문서는 원본 문서와 독립적이면서, multi-hop 질문에 답하기 위해 필요한 추가 정보를 담고 있어야 합니다."""
+위 정보를 바탕으로 가상의 문서 내용을 생성해주세요.
+이 문서는 원본 문서와 독립적이면서, 추가 정보를 담고 있어야 하며,
+multi-hop 질문의 정답이 이 문서에서 도출될 수 있어야 합니다."""
 
 # =============================================================================
 # Step 4: Image Generation Prompt Creation (TEXT ONLY)

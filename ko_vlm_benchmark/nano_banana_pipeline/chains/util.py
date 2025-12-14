@@ -3,6 +3,49 @@ from typing import Any
 from ..types import SearchResult
 
 
+def _extract_search_queries(response: Any) -> list[str]:
+    """Extract web search queries from the response content blocks.
+
+    Args:
+        response: Anthropic API response object.
+
+    Returns:
+        List of search query strings used during the API call.
+    """
+    queries: list[str] = []
+    content = getattr(response, "content", [])
+
+    for block in content:
+        if getattr(block, "name", None) == "web_search":
+            input_data = getattr(block, "input", {})
+            query = input_data.get("query", "")
+            if query:
+                queries.append(query)
+
+    return queries
+
+
+def _extract_thinking_contents(response: Any) -> list[str]:
+    """Extract thinking contents from the response content blocks.
+
+    Args:
+        response: Anthropic API response object.
+
+    Returns:
+        List of thinking content strings.
+    """
+    thoughts: list[str] = []
+    content = getattr(response, "content", [])
+
+    for block in content:
+        if getattr(block, "type", None) == "thinking":
+            thought_content = getattr(block, "thinking", "")
+            if thought_content:
+                thoughts.append(thought_content)
+
+    return thoughts
+
+
 def _extract_search_results(response: Any) -> list[SearchResult]:
     """Extract search results from the response content blocks.
 

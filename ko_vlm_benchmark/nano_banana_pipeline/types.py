@@ -32,18 +32,21 @@ class SingleHopResult(TypedDict):
 
 
 class MultiHopQuestionResult(TypedDict):
-    """Output from Step 2: Multi-hop question generation."""
+    """Output from Step 2: Multi-hop question generation with web search."""
 
     multi_hop_question: str
-    additional_info_needed: str
+    multi_hop_answer: str
+    additional_info: str
     question_style: str
+    search_queries: list[str]
+    search_results: list[SearchResult]
+    thinking_trajectory: list[str]
 
 
 class DocumentContentResult(TypedDict):
-    """Output from Step 3: Document content generation."""
+    """Output from Step 3: Document content formatting (no web search)."""
 
     document_content: str
-    search_results: list[SearchResult]
 
 
 class ImagePromptResult(TypedDict):
@@ -75,10 +78,14 @@ class PartialPipelineOutput(TypedDict):
     single_hop_answer: str
     single_hop_reasoning: str
 
-    # Step 2 outputs
+    # Step 2 outputs (now includes web search)
     multi_hop_question: str
-    additional_info_needed: str
+    multi_hop_answer: str
+    additional_info: str
     multi_hop_question_style: str
+    search_queries: list[str]
+    search_results: list[SearchResult]
+    thinking_trajectory: list[str]
 
     # Step 3 outputs
     hypothetical_document_content: str

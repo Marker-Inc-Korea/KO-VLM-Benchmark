@@ -1,6 +1,4 @@
-"""Step 3: Document content generation chain with Anthropic web search."""
-
-from typing import Any
+"""Step 3: Document content formatting chain (NO web search - uses Step 2 results)."""
 
 import anthropic
 
@@ -10,86 +8,72 @@ from ..prompts import (
     DOCUMENT_CONTENT_USER,
 )
 from ..types import DocumentContentResult
-from .util import _extract_search_results, _get_all_text_content
-
-# Beta header for structured outputs
-STRUCTURED_OUTPUTS_BETA = "structured-outputs-2025-11-13"
+from .util import _get_all_text_content
 
 
 class DocumentContentChain:
-    """Chain for generating document content using Anthropic's web search tool."""
+    """Chain for formatting document content from Step 2's search results."""
 
     def __init__(self, config: PipelineConfig):
         """Initialize the chain with configuration."""
         self.config = config
         self.client = anthropic.Anthropic(api_key=config.anthropic_api_key)
 
-    def _build_tools(self) -> list[dict[str, Any]]:
-        """Build the web search tool configuration."""
-        tool: dict[str, Any] = {
-            "type": "web_search_20250305",
-            "name": "web_search",
-            "max_uses": self.config.web_search_max_uses,
-        }
-
-        if self.config.web_search_allowed_domains:
-            tool["allowed_domains"] = self.config.web_search_allowed_domains
-
-        return [tool]
-
     def invoke(
         self,
         multi_hop_question: str,
-        additional_info_needed: str,
+        multi_hop_answer: str,
+        additional_info: str,
         visual_description: str,
     ) -> DocumentContentResult:
-        """Generate hypothetical document content using web search.
+        """Format document content from Step 2's additional info.
 
-        This searches for ONLY the additional info needed (not the visual description).
-        The visual description is the "grounded passage" that doesn't need searching.
+        No web search is performed - this step only formats the information
+        already gathered in Step 2 into a document structure.
 
         Args:
             multi_hop_question: The multi-hop question from Step 2.
-            additional_info_needed: Description of what additional info is needed.
+            multi_hop_answer: The answer to the multi-hop question from Step 2.
+            additional_info: The additional info gathered from web search in Step 2.
+            visual_description: Original visual description of the document.
 
         Returns:
-            DocumentContentResult with the generated document content.
+            DocumentContentResult with the formatted document content.
         """
         # Format the user message
         user_message = DOCUMENT_CONTENT_USER.format(
             multi_hop_question=multi_hop_question,
-            additional_info_needed=additional_info_needed,
+            multi_hop_answer=multi_hop_answer,
+            additional_info=additional_info,
             visual_description=visual_description,
         )
 
-        # Call Anthropic API with web search tool and structured output
-        response = self.client.beta.messages.create(
+        # Call Anthropic API WITHOUT web search tool
+        response = self.client.messages.create(
             model=self.config.sonnet_model,
             max_tokens=self.config.max_tokens,
             temperature=self.config.temperature,
             system=DOCUMENT_CONTENT_SYSTEM,
-            tools=self._build_tools(),
             messages=[{"role": "user", "content": user_message}],
         )
 
-        # Extract search results from the response
-        search_results = _extract_search_results(response)
-
-        # Extract parsed output
+        # Extract content
         content = _get_all_text_content(response)
 
         return DocumentContentResult(
             document_content=content,
-            search_results=search_results,
         )
 
     async def ainvoke(
         self,
         multi_hop_question: str,
-        additional_info_needed: str,
+        multi_hop_answer: str,
+        additional_info: str,
         visual_description: str,
     ) -> DocumentContentResult:
         """Async version of invoke."""
         import asyncio
 
-        return await asyncio.to_thread(self.invoke, multi_hop_question, additional_info_needed, visual_description)
+        return await asyncio.to_thread(
+            self.invoke, multi_hop_question, multi_hop_answer, additional_info, visual_description
+        )
