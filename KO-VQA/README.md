@@ -99,8 +99,7 @@ sh eval_VQA.sh
 > You need to set `base_model` and `huggingfacce_token`.
 
 # Results🌟
-# Results🌟
-| Model | KO-VQA (Acc.) | KO-VDC (Acc.) | KO-OCRAG (Avg.) |
+| Model | KO-VQA (Acc.) |
 | ------------- | ------------- |
 | `Closed-model` | ---- |
 | `Gemini-3-pro` | `Not Yet` |
