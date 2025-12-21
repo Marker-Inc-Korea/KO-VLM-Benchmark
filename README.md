@@ -91,6 +91,7 @@ RAG parsing에 적합한 description 생성 능력. (산업성🌟)
 | Model | KO-VQA (Acc.) | KO-VDC (Acc.) | KO-OCRAG (Avg.) |
 | ------------- | ------------- | ------------- | ------------- |
 | `Closed-model` | ---- | ---- | ---- |
+| `Gemini-3-pro` | `Not Yet` | `Not Yet` | 71.60 |
 | `Gemini-2.5-pro` | **91.80** | **97.50** | **73.06** |
 | `Gemini-2.5-flash` | 85.73 | 85.50 | 65.76 |
 | `Open-model` | ---- | ---- | ---- |
