@@ -92,22 +92,26 @@ sh eval_VDC.sh
 # Results🌟
 | Model | KO-VDC (Acc.) |
 | ------------- | ------------- |
-| `Gemini-2.5-pro` | NaN |
-| `Gemini-2.5-flash` | NaN |
-| `Qwen2.5-VL-32B-Instruct` | NaN |
-| `Qwen2.5-VL-7B-Instruct` | NaN |
-| `Ovis2.5-2B (w/ thinking)` | NaN |
-| `Ovis2.5-2B (w/o thinking)` | NaN |
-| `VARCO-VISION-14B-HF` | NaN |
-| `Gukbap-Ovis2-16B` | NaN |
-| `Ovis2-16B` | NaN |
-| `gemma-3-27b-it` | NaN |
-| `Gukbap-Gemma3-27B-VL` | NaN |
-| `Gukbap-Gemma3-12B-VL` | NaN |
-| `Ovis2-34B` | NaN |
-| `Gukbap-Ovis2-34B` | NaN |
-| `gemma-3-12b-it` | NaN |
-| `Bllossom-AICA-5B` | NaN |
+| `Closed-model` | ---- |
+| `Gemini-3-pro` | `Not Yet` | 71.60 |
+| `Gemini-2.5-pro` | **97.50** |
+| `Gemini-2.5-flash` | 85.50 |
+| `Open-model` | ---- |
+| `Qwen3-VL-30B-A3B-Instruct` | `OOM` |
+| `Qwen3-VL-8B-Instruct` | **68.50** |
+| `Qwen3-VL-4B-Instruct` | 42.50 |
+| `Qwen2.5-VL-32B-Instruct` | `OOM` |
+| `Qwen2.5-VL-7B-Instruct` | 39.50 |
+| `Ovis2.5-9B` | **52.50** |
+| `Ovis2.5-2B` | 32.25 |
+| `Ovis2-34B` | 22.50 |
+| `Ovis2-16B` | 26.00 |
+| `Gemma-3-27b-it` | 38.00 |
+| `Gemma-3-12b-it` | 30.25 |
+| `Gukbap-Ovis2-16B` | 23.50 |
+| `VARCO-VISION-2.0-14B-HF` | 36.00 |
+| `VARCO-VISION-14B-HF` | 4.00 |
+| `Bllossom-AICA-5B` | 2.00 |
 
 # References
 - [AIHub - 멀티모달정보검색 데이터셋](https://www.aihub.or.kr/aihubdata/data/view.do?currMenu=115&topMenu=100&dataSetSn=71813)
