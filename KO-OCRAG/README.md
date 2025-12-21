@@ -90,22 +90,27 @@ sh eval_OCRAG.sh
 # Results🌟
 | Model | KO-OCRAG (Avg.) |
 | ------------- | ------------- |
-| `Gemini-2.5-pro` | NaN |
-| `Gemini-2.5-flash` | NaN |
-| `Qwen2.5-VL-32B-Instruct` | NaN |
-| `Qwen2.5-VL-7B-Instruct` | NaN |
-| `Ovis2.5-2B (w/ thinking)` | NaN |
-| `Ovis2.5-2B (w/o thinking)` | NaN |
-| `VARCO-VISION-14B-HF` | NaN |
-| `Gukbap-Ovis2-16B` | NaN |
-| `Ovis2-16B` | NaN |
-| `gemma-3-27b-it` | NaN |
-| `Gukbap-Gemma3-27B-VL` | NaN |
-| `Gukbap-Gemma3-12B-VL` | NaN |
-| `Ovis2-34B` | NaN |
-| `Gukbap-Ovis2-34B` | NaN |
-| `gemma-3-12b-it` | NaN |
-| `Bllossom-AICA-5B` | NaN |
+| `Closed-model` | ---- |
+| `Gemini-3-pro` | 71.60 |
+| `Gemini-2.5-pro` | **73.06** |
+| `Gemini-2.5-flash` | 65.76 |
+| `Open-model` | ---- |
+| `Qwen3-VL-30B-A3B-Instruct` | 60.60 |
+| `Qwen3-VL-8B-Instruct` | **63.67** |
+| `Qwen3-VL-4B-Instruct` | **60.74** |
+| `Qwen2.5-VL-32B-Instruct` | 58.00 |
+| `Qwen2.5-VL-7B-Instruct` | 58.21 |
+| `Ovis2.5-9B` | 59.16 |
+| `Ovis2.5-2B` | 53.26 |
+| `Ovis2-34B` | 31.62 |
+| `Ovis2-16B` | 41.31 |
+| `Gemma-3-27b-it` | 5.58 |
+| `Gemma-3-12b-it` | 25.68 |
+| `Gukbap-Ovis2-16B` | 42.04 |
+| `VARCO-VISION-2.0-14B-HF` | 38.30 |
+| `VARCO-VISION-14B-HF` | 2.57 |
+| `Bllossom-AICA-5B` | 0.80 |
+> KO-OCRAG: `{(1-WER)+(1-CER)+rough2}/3`
 
 # References
 - [공공데이터셋포털](https://www.data.go.kr/index.do)
