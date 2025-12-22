@@ -39,7 +39,7 @@ flash-attn == 2.7.4.post1
 이렇게 만들어진 **KO-VDC** 데이터셋은, **VLM이 문서의 표/그래프/도식을 아무런 텍스트 정보 없이 얼마나 잘 이해할 수 있는지** 평가하게 됩니다!🔥
 > 자세한 평가 방식은 아래의 section을 참고해주세요!
 
-KO-VDC 데이터셋의 일부 [subset](https://github.com/Marker-Inc-Korea/KO-VLM-Benchmark/blob/main/data/Gemini_sampled_%EB%A9%80%ED%8B%B0%EB%AA%A8%EB%8B%AC_%EC%A0%95%EB%B3%B4%EA%B2%80%EC%83%89_%EB%8D%B0%EC%9D%B4%ED%84%B0_benchmark_200_subset.xlsx)을 `(TODO)`에서 확인하실 수 있습니다.🌞
+KO-VDC 데이터셋의 일부 [subset](https://github.com/Marker-Inc-Korea/KO-VLM-Benchmark/blob/main/data/Gemini_sampled_%EB%A9%80%ED%8B%B0%EB%AA%A8%EB%8B%AC_%EC%A0%95%EB%B3%B4%EA%B2%80%EC%83%89_%EB%8D%B0%EC%9D%B4%ED%84%B0_benchmark_200_subset.xlsx)을 `Gemini_sampled_멀티모달_정보검색_데이터_benchmark_200_subset.xlsx`에서 확인하실 수 있습니다.🌞
 > 전체 문항에 대해서는, 데이터 유출 및 데이터 저작권 문제로 인해 공유가 어렵습니다🤫
 > `Gemini_GT_1`이 정답 설명문이며, `Gemini_GT_2~4`는 틀린 설명문 입니다!
 
