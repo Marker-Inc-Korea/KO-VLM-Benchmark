@@ -96,7 +96,7 @@ RAG parsing에 적합한 description 생성 능력. (산업성🌟)
 | `Gemini-2.5-flash` | 85.73 | 85.50 | 65.76 |
 | `Open-model` | ---- | ---- | ---- |
 | `Qwen3-VL-30B-A3B-Instruct` | 44.2 | `OOM` | 60.60 |
-| `Qwen3-VL-8B-Instruct` | **53.87** | **68.50** | **63.67** |
+| `Qwen3-VL-8B-Instruct` | 53.87 | **68.50** | **63.67** |
 | `Qwen3-VL-4B-Instruct` | 38.47 | 42.50 | **60.74** |
 | `Qwen2.5-VL-32B-Instruct` | **61.80** | `OOM` | 58.00 |
 | `Qwen2.5-VL-7B-Instruct` | 53.27 | 39.50 | 58.21 |
@@ -107,7 +107,7 @@ RAG parsing에 적합한 description 생성 능력. (산업성🌟)
 | `Gemma-3-27b-it` | 34.20 | 38.00 | 5.58 |
 | `Gemma-3-12b-it` | 34.20 | 30.25 | 25.68 |
 | `Gukbap-Ovis2-16B` | 34.80 | 23.50 | 42.04 |
-| `VARCO-VISION-2.0-14B-HF` | 55.47 | 36.00 | 38.30 |
+| `VARCO-VISION-2.0-14B-HF` | **55.47** | 36.00 | 38.30 |
 | `VARCO-VISION-14B-HF` | 43.67 | 4.00 | 2.57 |
 | `Bllossom-AICA-5B` | 20.67 | 2.00 | 0.80 |
 > KO-OCRAG: `{(1-WER)+(1-CER)+rough2}/3`
