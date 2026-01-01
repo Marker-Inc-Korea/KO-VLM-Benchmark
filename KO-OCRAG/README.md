@@ -57,7 +57,7 @@ jiwer == 3.0.0
 공군학생군사학교는 체계적인 운영과 관리를 통해 학군후보생들이 전문성과 리더십을 갖춘 인재로 성장할 수 있도록 지원할 계획이다.
 ```
 
-KO-OCRAG 데이터셋의 일부 [subset](https://github.com/Marker-Inc-Korea/KO-VLM-Benchmark/blob/main/data/complex_document_OCR_benckmark_subset.xlsx)을 `complex_document_OCR_benckmark_subset.xlsx`에서 확인하실 수 있습니다.🌞
+KO-OCRAG 데이터셋의 일부 [subset(`TODO`)]을 `complex_document_OCR_benckmark_subset.xlsx`에서 확인하실 수 있습니다.🌞
 > 전체 문항에 대해서는, 데이터 유출 및 데이터 저작권 문제로 인해 공유가 어렵습니다🤫
 > GT에 해당하는 열은 `RAG-Parsing` 입니다!
 
@@ -73,7 +73,7 @@ KO-OCRAG 데이터셋은 기본적인 **텍스트 OCR 능력**과 더불어서, 
 > Average score: {(1-`WER`) + (1-`CER`) + `Sentence-BERT` + `Rouge-2`}/4  
 > Sentence-BERT model: `jinaai/jina-embeddings-v4`
   
-정리하면, 'WER, CER' metrics은 text OCR에 대한 평가를 하고 'Sentence-BERT, Rough-2` metrics은 이미지/도식 description에 대한 평가를 합니다!🦾
+정리하면, `WER, CER` metrics은 text OCR에 대한 평가를 하고 `Sentence-BERT, Rough-2` metrics은 이미지/도식 description에 대한 평가를 합니다!🦾
 
 저희가 평가에 이용한 prompt는 다음과 같습니다:
 ```
