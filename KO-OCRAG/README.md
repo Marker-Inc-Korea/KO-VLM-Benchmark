@@ -68,7 +68,7 @@ KO-OCRAG 데이터셋은 기본적인 **텍스트 OCR 능력**과 더불어서, 
 이러한 점을 모두 고려하여 저희는 아래의 3가지 metric에 대한 average score를 활용하였습니다:
 - `WER`: Text OCR의 word error rate 평가
 - `CER`: Text OCR의 Charater error rate 평가
-- 'Sentence-BERT-Score`: 이미지/도식에 대한 description의 pred와 GT 사이의 유사도 평가
+- `Sentence-BERT-Score`: 이미지/도식에 대한 description의 pred와 GT 사이의 유사도 평가
 - `Rouge-2 Recall`: 이미지/도식에 대한 description의 의미적 능력 평가
 > Average score: {(1-`WER`) + (1-`CER`) + `Sentence-BERT` + `Rouge-2`}/4  
 > Sentence-BERT model: `jinaai/jina-embeddings-v4`
@@ -143,3 +143,4 @@ sh eval_OCRAG.sh
 
 # References
 - [공공데이터셋포털](https://www.data.go.kr/index.do)
+- [jinaai/jina-embeddings-v4](https://huggingface.co/jinaai/jina-embeddings-v4)
