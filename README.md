@@ -91,40 +91,32 @@ RAG parsing에 적합한 description 생성 능력. (산업성🌟)
 | Model | KO-VQA (Acc.) | KO-VDC (Acc.) | KO-OCRAG (Avg.) |
 | ------------- | ------------- | ------------- | ------------- |
 | `Closed-model` | ---- | ---- | ---- |
-| `Gemini-3-pro` | `Not Yet` | `Not Yet` | 71.60 |
-| `Gemini-2.5-pro` | **91.80** | **97.50** | **73.06** |
-| `Gemini-2.5-flash` | 85.73 | 85.50 | 65.76 |
+| `Gemini-3-pro` | `Not Yet` | `Not Yet` | NaN |
+| `Gemini-2.5-pro` | **91.80** | **97.50** | NaN |
+| `Gemini-2.5-flash` | 85.73 | 85.50 | NaN |
 | `Open-model` | ---- | ---- | ---- |
-| `Qwen3-VL-30B-A3B-Instruct` | 44.2 | `OOM` | 60.60 |
-| `Qwen3-VL-8B-Instruct` | 53.87 | **68.50** | **63.67** |
-| `Qwen3-VL-4B-Instruct` | 38.47 | 42.50 | **60.74** |
-| `Qwen2.5-VL-32B-Instruct` | **61.80** | `OOM` | 58.00 |
-| `Qwen2.5-VL-7B-Instruct` | 53.27 | 39.50 | 58.21 |
-| `Ovis2.5-9B` | 33.27 | **52.50** | 59.16 |
-| `Ovis2.5-2B` | 31.67 | 32.25 | 53.26 |
-| `Ovis2-34B` | 32.60 | 22.50 | 31.62 |
-| `Ovis2-16B` | 34.20 | 26.00 | 41.31 |
-| `Gemma-3-27b-it` | 34.20 | 38.00 | 5.58 |
-| `Gemma-3-12b-it` | 34.20 | 30.25 | 25.68 |
-| `Gukbap-Ovis2-16B` | 34.80 | 23.50 | 42.04 |
-| `VARCO-VISION-2.0-14B-HF` | **55.47** | 36.00 | 38.30 |
-| `VARCO-VISION-14B-HF` | 43.67 | 4.00 | 2.57 |
-| `Bllossom-AICA-5B` | 20.67 | 2.00 | 0.80 |
-> KO-OCRAG: `{(1-WER)+(1-CER)+rough2}/3`  
+| `Qwen3-VL-30B-A3B-Instruct` | 44.2 | `OOM` | NaN |
+| `Qwen3-VL-8B-Instruct` | 53.87 | **68.50** | NaN |
+| `Qwen3-VL-4B-Instruct` | 38.47 | 42.50 | NaN |
+| `Qwen2.5-VL-32B-Instruct` | **61.80** | `OOM` | NaN |
+| `Qwen2.5-VL-7B-Instruct` | 53.27 | 39.50 | NaN |
+| `Ovis2.5-9B` | 33.27 | **52.50** | NaN |
+| `Ovis2.5-2B` | 31.67 | 32.25 | NaN |
+| `Ovis2-34B` | 32.60 | 22.50 | NaN |
+| `Ovis2-16B` | 34.20 | 26.00 | NaN |
+| `Gemma-3-27b-it` | 34.20 | 38.00 | NaN |
+| `Gemma-3-12b-it` | 34.20 | 30.25 | NaN |
+| `Gukbap-Ovis2-16B` | 34.80 | 23.50 | NaN |
+| `VARCO-VISION-2.0-14B-HF` | **55.47** | 36.00 | NaN |
+| `VARCO-VISION-14B-HF` | 43.67 | 4.00 | NaN |
+| `Bllossom-AICA-5B` | 20.67 | 2.00 | NaN |
+> KO-OCRAG: `{(1-WER)+(1-CER)+sentence-BERT+rough2}/4`
 > Run with one A100 40GB
 
 # References
 - [AIHub - 시각화질의응답 데이터셋](https://www.aihub.or.kr/aihubdata/data/view.do?currMenu=115&topMenu=100&dataSetSn=71812)
 - [AIHub - 멀티모달정보검색 데이터셋](https://www.aihub.or.kr/aihubdata/data/view.do?currMenu=115&topMenu=100&dataSetSn=71813)
 - [공공데이터포털](https://www.data.go.kr/index.do)
-
-# 설치방법
-
-```bash
-make install
-```
-
-`uv` 환경을 사용합니다.
 
 # Acknowledgement
 This research was supported by the Korea Institute for Advancement of Technology (KIAT) grant funded by the Korean Government (MOTIE) (RS-2024-00416131, HRD Program for Industrial Innovation)
