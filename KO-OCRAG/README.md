@@ -65,7 +65,7 @@ KO-OCRAG 데이터셋의 일부 [subset]()을 `[TODO]`에서 확인하실 수 �
 KO-OCRAG 데이터셋은 기본적인 **텍스트 OCR 능력**과 더불어서, 이미지/도식에 대한 description에 대한 **생성 능력 평가**가 이루어져야합니다.🦾
 이때 텍스트 OCR은 정답이 정해져 있는 반면, 이미지/도식에 대한 description에 대한 명확한 정답은 없습니다.🤫
 
-이러한 점을 모두 고려하여 저희는 아래의 3가지 metric에 대한 average score를 활용하였습니다:
+이러한 점을 모두 고려하여 저희는 아래의 4가지 metric에 대한 average score를 활용하였습니다:
 - `WER`: Text OCR의 word error rate 평가
 - `CER`: Text OCR의 Charater error rate 평가
 - `Sentence-BERT-Score`: 이미지/도식에 대한 description의 pred와 GT 사이의 유사도 평가
