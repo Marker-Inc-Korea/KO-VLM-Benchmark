@@ -74,9 +74,9 @@ jiwer == 3.0.0
 ```
 
 KO-OCRAG 데이터셋의 일부 [subset](https://github.com/Marker-Inc-Korea/KO-VLM-Benchmark/blob/main/data/HQ_handwritten_complex_document_OCR_benckmark_subset.xlsx)을 `HQ_handwritten_complex_document_OCR_benckmark_subset.xlsx`에서 확인하실 수 있습니다.🌞
-> 전체 문항에 대해서는, 데이터 유출 및 데이터 저작권 문제로 인해 공유가 어렵습니다🤫
-> Text OCR GT에 해당하는 열은 `TEXT_OCR` 입니다!
-> Image Description GT에 해당하는 열은 `IMAGE_DESRIPTION` 입니다!  
+> 전체 문항에 대해서는, 데이터 유출 및 데이터 저작권 문제로 인해 공유가 어렵습니다🤫  
+> Text OCR GT에 해당하는 열은 `TEXT_OCR` 입니다!  
+> Image Description GT에 해당하는 열은 `IMAGE_DESRIPTION` 입니다!   
 
 # How to evaluate🦾
 KO-OCRAG 데이터셋은 기본적인 **텍스트 OCR 능력**과 더불어서, 이미지/도식에 대한 description에 대한 **생성 능력 평가**가 이루어져야합니다.🦾
