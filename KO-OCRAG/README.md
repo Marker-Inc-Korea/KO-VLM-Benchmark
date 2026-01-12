@@ -43,7 +43,8 @@ jiwer == 3.0.0
 - 4차: `human editing`을 통해 `text_OCR`과 `image_description`으로 분리 및 가공.
 
 이해를 돕기 위해 3차/4차 데이터 정제 과정에 대해 좀 더 자세히 설명하도록 하겠습니다.  
-우선 `RAG parsing` 데이터란, **텍스트에 대한 OCR ground-truth와 더불어서 이미지&도식에 대한 text description 포함하고 있는 데이터**를 말합니다. 여기서 `[image] ~ [/image]` token을 활용하여 이미지&도식에 대한 description 부분을 명시하여 `RAG parsing` 목적에 더 적합하도록 데이터를 가공하였습니다.  
+우선 `RAG parsing` 데이터란, **텍스트에 대한 OCR ground-truth와 더불어서 이미지&도식에 대한 text description 포함하고 있는 데이터**를 말합니다.  
+여기서 `[image] ~ [/image]` token을 활용하여 이미지&도식에 대한 description 부분을 명시하여 `RAG parsing` 목적에 더 적합하도록 데이터를 가공하였습니다.  
 `Text_OCR`과 `image_description`은 `RAG parsing` 데이터에서 텍스트와 이미지 부분으로 데이터를 분리한 데이터를 의미합니다.  
 아래는 위의 설명에 대한 자세한 예시입니다!😋
 ```
