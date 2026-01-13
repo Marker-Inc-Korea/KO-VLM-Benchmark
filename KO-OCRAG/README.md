@@ -90,7 +90,7 @@ KO-OCRAG 데이터셋은 기본적인 **텍스트 OCR 능력**과 더불어서, 
 > Average score: {(1-`WER`) + (1-`CER`) + `Sentence-BERT` + `Rouge-1`}/4  
 > Sentence-BERT model: `jinaai/jina-embeddings-v4`
   
-정리하면, `WER, CER` metrics은 text OCR에 대한 평가를 하고 `Sentence-BERT, Rough-2` metrics은 이미지/도식 description에 대한 평가를 합니다!🦾
+정리하면, `WER, CER` metrics은 text OCR에 대한 평가를 하고 `Sentence-BERT, Rough-1` metrics은 이미지/도식 description에 대한 평가를 합니다!🦾
 
 저희가 평가에 이용한 prompt는 다음과 같습니다:
 ```
