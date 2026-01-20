@@ -111,7 +111,7 @@ RAG parsing에 적합한 description 생성 능력. (산업성🌟)
 | `VARCO-VISION-14B-HF` | 43.67 | 4.00 | NaN |
 | `Bllossom-AICA-5B` | 20.67 | 2.00 | NaN |
 > KO-OCRAG: `{(1-WER)+(1-CER)+sentence-BERT+rough1}/4`  
-> Run with one A100 40GB
+> Run with one A100 40GB or 80GB
 
 # References
 - [AIHub - 시각화질의응답 데이터셋](https://www.aihub.or.kr/aihubdata/data/view.do?currMenu=115&topMenu=100&dataSetSn=71812)
