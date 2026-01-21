@@ -95,21 +95,21 @@ RAG parsing에 적합한 description 생성 능력. (산업성🌟)
 | `Gemini-2.5-pro` | **91.80** | **97.50** | NaN |
 | `Gemini-2.5-flash` | 85.73 | 85.50 | NaN |
 | `Open-model` | ---- | ---- | ---- |
-| `Qwen3-VL-30B-A3B-Instruct` | 44.2 | `OOM` | NaN |
-| `Qwen3-VL-8B-Instruct` | 53.87 | **68.50** | NaN |
-| `Qwen3-VL-4B-Instruct` | 38.47 | 42.50 | NaN |
-| `Qwen2.5-VL-32B-Instruct` | **61.80** | `OOM` | NaN |
-| `Qwen2.5-VL-7B-Instruct` | 53.27 | 39.50 | NaN |
-| `Ovis2.5-9B` | 33.27 | **52.50** | NaN |
-| `Ovis2.5-2B` | 31.67 | 32.25 | NaN |
-| `Ovis2-34B` | 32.60 | 22.50 | NaN |
-| `Ovis2-16B` | 34.20 | 26.00 | NaN |
-| `Gemma-3-27b-it` | 34.20 | 38.00 | NaN |
-| `Gemma-3-12b-it` | 34.20 | 30.25 | NaN |
-| `Gukbap-Ovis2-16B` | 34.80 | 23.50 | NaN |
-| `VARCO-VISION-2.0-14B-HF` | **55.47** | 36.00 | NaN |
-| `VARCO-VISION-14B-HF` | 43.67 | 4.00 | NaN |
-| `Bllossom-AICA-5B` | 20.67 | 2.00 | NaN |
+| `Qwen3-VL-30B-A3B-Instruct` | 44.2 | `OOM` | `OOM` |
+| `Qwen3-VL-8B-Instruct` | 53.87 | **68.50** | **56.26** |
+| `Qwen3-VL-4B-Instruct` | 38.47 | 42.50 | **50.21** |
+| `Qwen2.5-VL-32B-Instruct` | **61.80** | `OOM` | 33.36 |
+| `Qwen2.5-VL-7B-Instruct` | 53.27 | 39.50 | 30.63 |
+| `Ovis2.5-9B` | 33.27 | **52.50** | 41.23 |
+| `Ovis2.5-2B` | 31.67 | 32.25 | 28.19 |
+| `Ovis2-34B` | 32.60 | 22.50 | 22.75 |
+| `Ovis2-16B` | 34.20 | 26.00 | 26.69 |
+| `Gemma-3-27b-it` | 34.20 | 38.00 | 3.63 |
+| `Gemma-3-12b-it` | 34.20 | 30.25 | 0.50 |
+| `Gukbap-Ovis2-16B` | 34.80 | 23.50 | 26.35 |
+| `VARCO-VISION-2.0-14B-HF` | **55.47** | 36.00 | 35.44 |
+| `VARCO-VISION-14B-HF` | 43.67 | 4.00 | 14.66 |
+| `Bllossom-AICA-5B` | 20.67 | 2.00 | 0.14 |
 > KO-OCRAG: `{(1-WER)+(1-CER)+sentence-BERT+rough1}/4`  
 > Run with one A100 40GB or 80GB
 
