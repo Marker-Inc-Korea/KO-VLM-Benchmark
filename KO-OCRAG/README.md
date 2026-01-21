@@ -134,28 +134,28 @@ sh eval_OCRAG.sh
 > You need to set `base_model` and `huggingfacce_token`.
 
 # Results🌟
-| Model | KO-OCRAG (Avg.) |
-| ------------- | ------------- |
-| `Closed-model` | ---- |
-| `Gemini-3-pro` | NaN |
-| `Gemini-2.5-pro` | NaN |
-| `Gemini-2.5-flash` | NaN |
+| Model | 1-WER | 1-CER | Sentence-BERT | Rouge-1 Recall | KO-OCRAG (Avg.) |
+| ------------- | ------------- | ------------- | ------------- | ------------- | ------------- |
+| `Closed-model` | ---- | ---- | ---- | ---- | ---- |
+| `Gemini-3-pro` | NaN | NaN | NaN | NaN | NaN |
+| `Gemini-2.5-pro` | NaN | NaN | NaN | NaN | NaN |
+| `Gemini-2.5-flash` | NaN | NaN | NaN | NaN | NaN |
 | `Open-model` | ---- |
-| `Qwen3-VL-30B-A3B-Instruct` | NaN |
-| `Qwen3-VL-8B-Instruct` | NaN |
-| `Qwen3-VL-4B-Instruct` | NaN |
-| `Qwen2.5-VL-32B-Instruct` | NaN |
-| `Qwen2.5-VL-7B-Instruct` | NaN |
-| `Ovis2.5-9B` | NaN |
-| `Ovis2.5-2B` | NaN |
-| `Ovis2-34B` | NaN |
-| `Ovis2-16B` | NaN |
-| `Gemma-3-27b-it` | NaN |
-| `Gemma-3-12b-it` | NaN |
-| `Gukbap-Ovis2-16B` | NaN |
-| `VARCO-VISION-2.0-14B-HF` | NaN |
-| `VARCO-VISION-14B-HF` | NaN |
-| `Bllossom-AICA-5B` | NaN |
+| `Qwen3-VL-30B-A3B-Instruct` | `OOM` | `OOM` | `OOM` | `OOM` | `OOM` |
+| `Qwen3-VL-8B-Instruct` | 69.38 | 78.93 | 58.84 | 17.88 | **56.26** |
+| `Qwen3-VL-4B-Instruct` | 65.72 | 76.26 | 51.14 | 7.72 | **50.21** |
+| `Qwen2.5-VL-32B-Instruct` | 48.29 | 45.27 | 44.80 | 9.10 | 33.36 |
+| `Qwen2.5-VL-7B-Instruct` | 54.53 | 59.74 | 6.20 | 2.05 | 30.63 |
+| `Ovis2.5-9B` | 57.32 | 66.41 | 36.15 | 5.03 | 41.23 |
+| `Ovis2.5-2B` | 48.56 | 57.08 | 5.80 | 1.33 | 28.19 |
+| `Ovis2-34B` | 15.90 | 34.28 | 34.28 | 6.52 | 22.75 |
+| `Ovis2-16B` | 32.80 | 49.13 | 19.48 | 5.36 | 26.69 |
+| `Gemma-3-27b-it` | 4.11 | 10.43 | 0.00 | 0.00 | 3.63 |
+| `Gemma-3-12b-it` | 0.17 | 1.82 | 0.00 | 0.00 | 0.50 |
+| `Gukbap-Ovis2-16B` | 29.90 | 47.36 | 24.59 | 3.55 | 26.35 |
+| `VARCO-VISION-2.0-14B-HF` | 54.18 | 66.19 | 18.71 | 2.71 | 35.44 |
+| `VARCO-VISION-14B-HF` | 20.21 | 34.59 | 3.13 | 0.71 | 14.66 |
+| `Bllossom-AICA-5B` | 0.11 | 0.46 | 0.00 | 0.00 | 0.14 |
 > KO-OCRAG: `{(1-WER)+(1-CER)+sentence-BERT+rough1}/4`
 
 # References
