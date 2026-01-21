@@ -2059,4 +2059,4 @@ OCR 결과:'''
         raise Exception("Not yet implementation")
     
     print('## img_dataset_count:', img_dataset_count)
-    return all_wer_score/len(eval_dataset), all_cer_score/len(eval_dataset), all_rouge_score/img_dataset_count, all_sbert_score/img_dataset_count #, all_mme_score/img_dataset_count
+    return all_wer_score/len(eval_dataset), all_cer_score/len(eval_dataset), all_rouge_score/img_dataset_count, all_sbert_score/img_dataset_count
