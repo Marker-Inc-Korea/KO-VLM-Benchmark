@@ -681,8 +681,6 @@ def OCRAG_Eval_ver2(eval_dataset,
     
     all_wer_score = 0
     all_cer_score = 0
-    #all_norm_ED = 0
-    #all_mme_score = 0
     all_rouge_score = 0
     all_sbert_score = 0
     print(eval_dataset.columns)
