@@ -16,19 +16,7 @@ from transformers import (
     Qwen3VLMoeForConditionalGeneration,
 )
 
-# 4.49.0 > // ovis2 possible
-from ko_vlm_benchmark.dataset.ocrag_func import OCRAG_Eval
-
-"""
-if v not in ALL_PARALLEL_STYLES:
-TypeError: argument of type 'NoneType' is not iterable
-->
-from transformers import modeling_utils
-if not hasattr(modeling_utils, "ALL_PARALLEL_STYLES") or modeling_utils.ALL_PARALLEL_STYLES is None:
-    modeling_utils.ALL_PARALLEL_STYLES = ["tp", "none","colwise",'rowwise']
-
--> or transformers 4.51.3
-"""
+from dataset.ocrag_func import OCRAG_Eval
 
 
 # 19_VQA
