@@ -126,4 +126,4 @@ This research was supported by the Korea Institute for Advancement of Technology
 - [x] 전체적인 Code Update
 - [ ] 모델 벤치마크 완료하기
 - [x] OCRAG Update
-- [ ] New code update
+- [x] New code update
