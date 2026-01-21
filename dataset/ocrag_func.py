@@ -687,8 +687,6 @@ def OCRAG_Eval_ver2(eval_dataset,
     all_sbert_score = 0
     print(eval_dataset.columns)
 
-    #text_sample = pd.DataFrame(columns=['id', 'type', 'Modified_image_path', 'text_input'])
-
     print("## load metric")
     # WER
     wer_metric = load("wer")
@@ -696,15 +694,6 @@ def OCRAG_Eval_ver2(eval_dataset,
     cer_metric = load("cer")
     # rouge
     scorer = rouge_scorer.RougeScorer(["rouge1", "rouge2", "rougeL"], use_stemmer=True)
-
-    # MLLM-E
-    #llama3_template = '<|start_header_id|>user<|end_header_id|>\n\n{}<|eot_id|><|start_header_id|>assistant<|end_header_id|>\n\n \n'
-    #mllm_embed_model_path = 'royokong/e5-v'
-    #mme_processor = LlavaNextProcessor.from_pretrained(mllm_embed_model_path)
-    #mme_processor.patch_size = 14
-    #mme_model = LlavaNextForConditionalGeneration.from_pretrained(mllm_embed_model_path, torch_dtype=torch.float16).to(model.device)
-    #img_prompt = llama3_template.format('<image>\nSummary above image in one word: ')
-    #text_prompt = llama3_template.format('<sent>\nSummary above sentence in one word: ')
     
     # SBERT
     sbert_model_path = 'jinaai/jina-embeddings-v4'
