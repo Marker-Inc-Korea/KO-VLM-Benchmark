@@ -107,7 +107,7 @@ sh eval_VQA.sh
 | `Gemini-2.5-flash` | 85.73 |
 | `Open-model` | ---- |
 | `Qwen3-VL-30B-A3B-Instruct` | 44.2 |
-| `Qwen3-VL-8B-Instruct` | 53.87 |
+| `Qwen3-VL-8B-Instruct` | **53.87** |
 | `Qwen3-VL-4B-Instruct` | 38.47 |
 | `Qwen2.5-VL-32B-Instruct` | **61.80** |
 | `Qwen2.5-VL-7B-Instruct` | 53.27 |
@@ -116,7 +116,7 @@ sh eval_VQA.sh
 | `Ovis2-34B` | 32.60 |
 | `Ovis2-16B` | 34.20 |
 | `Gemma-3-27b-it` | 34.20 |
-| `Gemma-3-12b-it` | 34.20 |
+| `Gemma-3-12b-it` | 28.73 |
 | `Gukbap-Ovis2-16B` | 34.80 |
 | `VARCO-VISION-2.0-14B-HF` | **55.47** |
 | `VARCO-VISION-14B-HF` | 43.67 |
