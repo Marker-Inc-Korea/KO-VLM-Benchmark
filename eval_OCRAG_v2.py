@@ -16,7 +16,7 @@ from transformers import (
     Qwen3VLMoeForConditionalGeneration,
 )
 
-from dataset.ocrag_func import OCRAG_Eval
+from dataset.ocrag_func import OCRAG_Eval, OCRAG_Eval_ver2
 
 
 # OCRAG
@@ -109,52 +109,53 @@ def main(
         raise NotImplementedError("Not implementation!!")
 
     ### Evaluation
-    if "OCRAG" in dataset:
+    if 'OCRAG' in dataset:
         eval_dataset = pd.read_excel(dataset_path)
-        # eval_dataset = eval_dataset.iloc[:100]
+        #eval_dataset = eval_dataset.iloc[:100]
         print("Dataset length:", len(eval_dataset))
         max_length = 0
         for i in range(len(eval_dataset)):
             gt_caption = eval_dataset.loc[i].Human_Caption.strip()
             if max_length < len(gt_caption):
                 max_length = len(gt_caption)
-        print(max_length)  # < 4096
-
+        print(max_length) # < 4096
+        
         # TODO: gemma3 not yet
-        if ("Gukbap-Gemma3" in base_model) or ("gemma-3" in base_model):
-            wer_avg, cer_avg, rouge_avg = OCRAG_Eval(eval_dataset, model, image_path, processor, None, "gemma3")
+        if ('Gukbap-Gemma3' in base_model) or ('gemma-3' in base_model):
+            wer_avg, cer_avg, rouge_avg, sbert_avg = OCRAG_Eval_ver2(eval_dataset, model, image_path, processor, None, 'gemma3')
 
-        elif "Ovis2.5" in base_model:
-            wer_avg, cer_avg, rouge_avg = OCRAG_Eval(eval_dataset, model, image_path, None, None, "ovis2.5")
-
-        elif ("Ovis" in base_model) or ("Gukbap" in base_model):
-            wer_avg, cer_avg, rouge_avg = OCRAG_Eval(
-                eval_dataset, model, image_path, text_tokenizer, visual_tokenizer, "ovis"
-            )
-
-        elif "Bllossom" in base_model:
-            wer_avg, cer_avg, rouge_avg = OCRAG_Eval(eval_dataset, model, image_path, processor, None, "bllossom")
-
-        elif "VARCO" in base_model:
-            if "2.0" in base_model:
-                wer_avg, cer_avg, rouge_avg = OCRAG_Eval(eval_dataset, model, image_path, processor, None, "VARCO-2.0")
+        elif 'Ovis2.5' in base_model:
+            wer_avg, cer_avg, rouge_avg, sbert_avg = OCRAG_Eval_ver2(eval_dataset, model, image_path, None, None, 'ovis2.5')
+        
+        elif ('Ovis' in base_model) or ('Gukbap' in base_model):
+            wer_avg, cer_avg, rouge_avg, sbert_avg = OCRAG_Eval_ver2(eval_dataset, model, image_path, text_tokenizer, visual_tokenizer, 'ovis')
+        
+        elif 'Bllossom' in base_model:
+            wer_avg, cer_avg, rouge_avg, sbert_avg = OCRAG_Eval_ver2(eval_dataset, model, image_path, processor, None, 'bllossom')
+        
+        elif 'VARCO' in base_model:
+            if '2.0' in base_model:
+                wer_avg, cer_avg, rouge_avg, sbert_avg = OCRAG_Eval_ver2(eval_dataset, model, image_path, processor, None, 'VARCO-2.0')
             else:
-                wer_avg, cer_avg, rouge_avg = OCRAG_Eval(eval_dataset, model, image_path, processor, None, "VARCO")
+                wer_avg, cer_avg, rouge_avg, sbert_avg = OCRAG_Eval_ver2(eval_dataset, model, image_path, processor, None, 'VARCO')
 
-        elif "Qwen2.5" in base_model:
-            wer_avg, cer_avg, rouge_avg = OCRAG_Eval(eval_dataset, model, image_path, processor, None, "qwen2.5")
+        elif 'Qwen2.5' in base_model:
+            wer_avg, cer_avg, rouge_avg, sbert_avg = OCRAG_Eval_ver2(eval_dataset, model, image_path, processor, None, 'qwen2.5')
 
-        elif "Qwen3" in base_model:
-            wer_avg, cer_avg, rouge_avg = OCRAG_Eval(eval_dataset, model, image_path, processor, None, "qwen3")
+        elif 'Qwen3' in base_model:
+            wer_avg, cer_avg, rouge_avg, sbert_avg = OCRAG_Eval_ver2(eval_dataset, model, image_path, processor, None, 'qwen3')
 
-        all_avg = (wer_avg + cer_avg + rouge_avg) / 3
+        all_avg = (wer_avg + cer_avg + rouge_avg + sbert_avg) / 4
+        
         print("### 멀티모달정보검색 wer_avg score:", wer_avg)
         print("### 멀티모달정보검색 cer_avg score:", cer_avg)
-        print("### 멀티모달정보검색 rouge score:", rouge_avg)
+        print("### 멀티모달정보검색 rouge_1_avg score:", rouge_avg)
+        print("### 멀티모달정보검색 sbert_avg score:", sbert_avg)
+        #print("### 멀티모달정보검색 mme_avg score:", mme_avg)
         print("### 멀티모달정보검색 all_avg score:", all_avg)
-
+    
     else:
-        raise NotImplementedError("### Not implementation!!")
+        raise Exception("### Not implementation!!")
 
 
 if __name__ == "__main__":
