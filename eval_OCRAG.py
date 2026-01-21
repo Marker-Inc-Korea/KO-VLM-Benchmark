@@ -19,7 +19,7 @@ from transformers import (
 from dataset.ocrag_func import OCRAG_Eval
 
 
-# 19_VQA
+# OCRAG
 def main(
     dataset="OCRAG",
     base_model="Markr-AI/Gukbap-Gemma3-12B-VL",
