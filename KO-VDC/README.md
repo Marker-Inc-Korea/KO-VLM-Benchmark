@@ -93,13 +93,13 @@ sh eval_VDC.sh
 | Model | KO-VDC (Acc.) |
 | ------------- | ------------- |
 | `Closed-model` | ---- |
-| `Gemini-3-pro` | `Not Yet` | 71.60 |
+| `Gemini-3-pro` | `Not Yet` | 
 | `Gemini-2.5-pro` | **97.50** |
 | `Gemini-2.5-flash` | 85.50 |
 | `Open-model` | ---- |
 | `Qwen3-VL-30B-A3B-Instruct` | `OOM` |
 | `Qwen3-VL-8B-Instruct` | **68.50** |
-| `Qwen3-VL-4B-Instruct` | 42.50 |
+| `Qwen3-VL-4B-Instruct` | **42.50** |
 | `Qwen2.5-VL-32B-Instruct` | `OOM` |
 | `Qwen2.5-VL-7B-Instruct` | 39.50 |
 | `Ovis2.5-9B` | **52.50** |
