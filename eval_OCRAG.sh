@@ -1,6 +1,6 @@
 # Markr-AI/Gukbap-Ovis2-16B-VL
 
-python eval_OCRAG.py \
+python eval_OCRAG_v2.py \
     --base_model [...VLM_model...] \
     --thinking_mode False \
     --huggingface_token [...your_token...] \
