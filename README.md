@@ -91,8 +91,8 @@ RAG parsing에 적합한 description 생성 능력. (산업성🌟)
 | Model | KO-VQA (Acc.) | KO-VDC (Acc.) | KO-OCRAG (Avg.) |
 | ------------- | ------------- | ------------- | ------------- |
 | `Closed-model` | ---- | ---- | ---- |
-| `Gemini-3-pro` | `Not Yet` | `Not Yet` | 64.17 |
-| `Gemini-2.5-pro` | **91.80** | **97.50** | **65.31** |
+| `Gemini-3-pro` | **92.6** | 89.5 | 64.17 |
+| `Gemini-2.5-pro` | 91.80 | **97.50** | **65.31** |
 | `Gemini-2.5-flash` | 85.73 | 85.50 | 62.30 |
 | `Open-model` | ---- | ---- | ---- |
 | `Qwen3-VL-30B-A3B-Instruct` | 44.2 | `OOM` | `OOM` |
@@ -124,6 +124,6 @@ This research was supported by the Korea Institute for Advancement of Technology
 # TODO
 - [x] 데이터셋 설명추가
 - [x] 전체적인 Code Update
-- [ ] 모델 벤치마크 완료하기
+- [x] 모델 벤치마크 완료하기
 - [x] OCRAG Update
 - [x] New code update
