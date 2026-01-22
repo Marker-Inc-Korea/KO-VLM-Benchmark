@@ -93,7 +93,7 @@ sh eval_VDC.sh
 | Model | KO-VDC (Acc.) |
 | ------------- | ------------- |
 | `Closed-model` | ---- |
-| `Gemini-3-pro` | `Not Yet` | 
+| `Gemini-3-pro` | 89.50 | 
 | `Gemini-2.5-pro` | **97.50** |
 | `Gemini-2.5-flash` | 85.50 |
 | `Open-model` | ---- |
