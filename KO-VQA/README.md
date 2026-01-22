@@ -102,8 +102,8 @@ sh eval_VQA.sh
 | Model | KO-VQA (Acc.) |
 | ------------- | ------------- |
 | `Closed-model` | ---- |
-| `Gemini-3-pro` | `Not Yet` |
-| `Gemini-2.5-pro` | **91.80** |
+| `Gemini-3-pro` | **92.60** |
+| `Gemini-2.5-pro` | 91.80 |
 | `Gemini-2.5-flash` | 85.73 |
 | `Open-model` | ---- |
 | `Qwen3-VL-30B-A3B-Instruct` | 44.2 |
