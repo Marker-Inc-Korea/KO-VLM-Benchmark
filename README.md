@@ -128,3 +128,6 @@ This research was supported by the Korea Institute for Advancement of Technology
 - [x] 모델 벤치마크 완료하기
 - [x] OCRAG Update
 - [x] New code update
+
+# Contact
+데이터셋 활용과 관련해서는 tafelatte779@gmail.com으로 연락주세요🤗
