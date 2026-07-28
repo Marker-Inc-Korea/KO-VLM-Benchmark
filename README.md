@@ -131,3 +131,7 @@ This research was supported by the Korea Institute for Advancement of Technology
 
 # Contact
 데이터셋 활용과 관련해서는 tafelatte779@gmail.com으로 연락주세요🤗
+
+# Welcome to KOLongDoc
+⚠️길이가 긴 고해상도 한국어 문서에 대한 multi-hop VQA를 종합적으로 고려한 데이터셋 모두 공개!?
+- [KOLongDoc](https://github.com/Marker-Inc-Korea/KOLongDoc)에서 확인해보세요!!
